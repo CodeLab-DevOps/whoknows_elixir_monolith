@@ -11,13 +11,19 @@ defmodule WhoknowsElixirMonolith.Accounts.User do
 
   end
 
-  @doc false
-  def changeset(user, attrs) do
+   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:username, :email, :password])
-    |> validate_required([:username, :email, :password])
-    |> unique_constraint(:username)
-    |> unique_constraint(:email)
+    |> cast(attrs, [:email, :password])
+    |> validate_required([:email, :password])
+    |> validate_format(:email, ~r/@/)
+    |> hash_password()
   end
 
+  defp hash_password(changeset) do
+    if password = get_change(changeset, :password) do
+      put_change(changeset, :password_hash, :crypto.hash(:sha256, password))
+    else
+      changeset
+    end
+  end
 end
