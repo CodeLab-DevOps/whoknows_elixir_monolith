@@ -43,7 +43,7 @@ defmodule WhoknowsElixirMonolith.MixProject do
       {:phoenix, "~> 1.8.1"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13"},
-      {:postgrex, ">= 0.0.0"},
+      {:ecto_sqlite3, "~> 0.17"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.1.0"},
@@ -82,7 +82,11 @@ defmodule WhoknowsElixirMonolith.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["compile", "tailwind whoknows_elixir_monolith", "esbuild whoknows_elixir_monolith"],
+      "assets.build": [
+        "compile",
+        "tailwind whoknows_elixir_monolith",
+        "esbuild whoknows_elixir_monolith"
+      ],
       "assets.deploy": [
         "tailwind whoknows_elixir_monolith --minify",
         "esbuild whoknows_elixir_monolith --minify",
