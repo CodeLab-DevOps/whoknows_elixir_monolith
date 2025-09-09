@@ -5,17 +5,19 @@ defmodule WhoknowsElixirMonolith.Accounts.User do
   schema "users" do
     field :username, :string
     field :email, :string
-    field :password, :string
+    field :password, :string, virtual: true
+    field :password_hash, :string
 
     timestamps()
-
   end
 
-   def changeset(user, attrs) do
+  def changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:username, :email, :password])
     |> validate_required([:email, :password])
     |> validate_format(:email, ~r/@/)
+    |> validate_length(:password, min: 8)
+    |> unique_constraint(:email)
     |> hash_password()
   end
 
