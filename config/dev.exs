@@ -2,10 +2,7 @@ import Config
 
 # Configure your database
 config :whoknows_elixir_monolith, WhoknowsElixirMonolith.Repo,
-  username: "postgres",
-  password: System.get_env("DB_PASSWORD", "postgres"),
-  hostname: "localhost",
-  database: "whoknows_elixir_monolith_dev",
+  database: "priv/repo/dev.db",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
