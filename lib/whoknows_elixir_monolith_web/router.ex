@@ -19,6 +19,7 @@ defmodule WhoknowsElixirMonolithWeb.Router do
 
     get "/", PageController, :home
     get "/register", PageController, :register
+    get "/weather", WeatherController, :index
   end
 
   # Other scopes may use custom stacks.
