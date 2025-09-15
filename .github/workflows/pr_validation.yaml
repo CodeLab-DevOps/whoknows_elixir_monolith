@@ -20,4 +20,4 @@ jobs:
             const missingFields = requiredFields.filter(field => !body.includes(field));
             if (missingFields.length > 0) {
               core.setFailed(`PR mangler følgende felter i skabelonen: ${missingFields.join(", ")}`);
-            }
+            } 
