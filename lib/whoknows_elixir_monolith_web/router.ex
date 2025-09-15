@@ -18,6 +18,8 @@ defmodule WhoknowsElixirMonolithWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/register", UserController, :register
+    get "/weather", WeatherController, :index
   end
 
 
