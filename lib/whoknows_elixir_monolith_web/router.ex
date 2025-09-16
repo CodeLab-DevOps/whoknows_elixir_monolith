@@ -20,6 +20,7 @@ defmodule WhoknowsElixirMonolithWeb.Router do
     get "/", PageController, :home
     get "/register", UserController, :register
     get "/weather", WeatherController, :weather
+    get "/login", UserController, :login
   end
 
   # Other scopes may use custom stacks.
@@ -27,6 +28,8 @@ defmodule WhoknowsElixirMonolithWeb.Router do
      pipe_through :api
 
      post "/register", UserController, :p_register
+     post "/login", UserController, :p_login
+     get "/logout", UserController, :logout
    end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

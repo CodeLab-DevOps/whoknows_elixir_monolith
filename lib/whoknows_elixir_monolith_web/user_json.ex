@@ -6,4 +6,11 @@ defmodule WhoknowsElixirMonolithWeb.UserJSON do
       payload: payload
     }
   end
+
+  def p_login(%{payload: payload}) do
+    %{
+      ok: true,
+      payload: payload
+    }
+  end
 end
