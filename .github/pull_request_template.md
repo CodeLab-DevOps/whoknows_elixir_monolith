@@ -1,5 +1,3 @@
-# Pull Request Template
-
 ## Titel
 <!-- Beskriv PR'en kort og præcist -->
 Tittel: 
