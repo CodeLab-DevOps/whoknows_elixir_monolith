@@ -29,6 +29,7 @@ defmodule WhoknowsElixirMonolithWeb.Router do
 
      post "/register", UserController, :p_register
      post "/login", UserController, :p_login
+     get "/logout", UserController, :logout
    end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

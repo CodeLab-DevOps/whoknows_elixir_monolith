@@ -23,4 +23,9 @@ defmodule WhoknowsElixirMonolithWeb.UserController do
     render(conn, :p_login, %{payload: params})
     #api endpoint for login
   end
+
+  def logout(conn, _params) do
+    conn
+    |> redirect(to: "/")
+  end
 end
