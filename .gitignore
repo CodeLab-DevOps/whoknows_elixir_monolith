@@ -44,3 +44,7 @@ npm-debug.log
 # Environment variables (TILFØJET)
 .env
 .env.*
+
+# SQLite databases
+*.db
+*.db-*

@@ -1,0 +1,75 @@
+<div class="mb-8 p-4 text-center">
+  <div class="flex justify-center gap-2 max-w-2xl mx-auto">
+    <input
+      id="search-input"
+      type="text"
+      placeholder="Search..."
+      value={@query}
+      class="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+    />
+    <button
+      id="search-button"
+      onclick="makeSearchRequest()"
+      class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+    >
+      Search
+    </button>
+  </div>
+</div>
+
+<div id="results" class="max-w-4xl mx-auto">
+  <%= for result <- @search_results do %>
+    <div class="p-6 border-b border-gray-200 last:border-b-0">
+      <h2 class="mb-2">
+        <a href={result.url} class="text-xl text-blue-700 hover:underline" target="_blank">
+          <%= result.title %>
+        </a>
+      </h2>
+      <p class="text-green-700 text-sm mb-2">
+        <%= result.url %>
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-3">
+        <%= String.slice(result.content, 0, 300) %>...
+      </p>
+      <div class="text-xs text-gray-500 flex gap-4">
+        <span>Language: <%= result.language %></span>
+        <%= if result.last_updated do %>
+          <span>
+            Last updated: <%= Calendar.strftime(result.last_updated, "%Y-%m-%d") %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= if @query != "" and length(@search_results) == 0 do %>
+    <div class="text-center py-8">
+      <p class="text-gray-600">No results found for "<%= @query %>"</p>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  let searchInput;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    searchInput = document.getElementById("search-input");
+
+    // Focus the input field
+    searchInput.focus();
+
+    // Search when the user presses Enter
+    searchInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+          makeSearchRequest();
+        }
+    });
+  });
+
+  function makeSearchRequest() {
+    const query = searchInput.value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('q', query);
+    window.location.href = url.toString();
+  }
+</script>
