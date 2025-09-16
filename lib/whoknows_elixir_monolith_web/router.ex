@@ -19,13 +19,15 @@ defmodule WhoknowsElixirMonolithWeb.Router do
 
     get "/", PageController, :home
     get "/register", UserController, :register
-    get "/weather", WeatherController, :index
+    get "/weather", WeatherController, :weather
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", WhoknowsElixirMonolithWeb do
-  #   pipe_through :api
-  # end
+   scope "/api", WhoknowsElixirMonolithWeb do
+     pipe_through :api
+
+     post "/register", UserController, :p_register
+   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:whoknows_elixir_monolith, :dev_routes) do
