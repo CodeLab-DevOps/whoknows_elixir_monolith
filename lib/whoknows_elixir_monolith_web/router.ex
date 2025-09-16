@@ -17,7 +17,7 @@ defmodule WhoknowsElixirMonolithWeb.Router do
   scope "/", WhoknowsElixirMonolithWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", SearchController, :index
     get "/register", UserController, :register
     get "/weather", WeatherController, :weather
     get "/login", UserController, :login
@@ -27,6 +27,7 @@ defmodule WhoknowsElixirMonolithWeb.Router do
    scope "/api", WhoknowsElixirMonolithWeb do
      pipe_through :api
 
+     get "/search", SearchController, :search
      post "/register", UserController, :p_register
      post "/login", UserController, :p_login
      get "/logout", UserController, :logout
