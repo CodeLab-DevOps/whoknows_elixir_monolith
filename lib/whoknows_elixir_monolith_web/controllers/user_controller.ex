@@ -13,4 +13,9 @@ defmodule WhoknowsElixirMonolithWeb.UserController do
     # Alternative if you want to skip the JSON view module:
     # json(conn, %{ok: true, payload: params})
   end
+
+  def login(conn, _params) do
+    render(conn, :login)
+    #code used for userlogin
+  end
 end
