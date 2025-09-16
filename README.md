@@ -3,6 +3,8 @@
 To start your Phoenix server:
 
 * Run `mix setup` to install and setup dependencies
+- Run `mix ecto.migrate` to implement the latest migration
+- Have the old `whoknows.db` in the repo root and Run `mix migrate_pages`
 * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
