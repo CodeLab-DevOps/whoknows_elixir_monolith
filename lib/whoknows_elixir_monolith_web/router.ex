@@ -28,6 +28,7 @@ defmodule WhoknowsElixirMonolithWeb.Router do
      pipe_through :api
 
      post "/register", UserController, :p_register
+     post "/login", UserController, :p_login
    end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

@@ -18,4 +18,9 @@ defmodule WhoknowsElixirMonolithWeb.UserController do
     render(conn, :login)
     #code used for userlogin
   end
+
+  def p_login(conn, params) do
+    render(conn, :p_login, %{payload: params})
+    #api endpoint for login
+  end
 end
