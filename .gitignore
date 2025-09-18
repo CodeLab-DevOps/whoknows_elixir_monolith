@@ -48,3 +48,6 @@ npm-debug.log
 # SQLite databases
 *.db
 *.db-*
+
+# old app files
+old app/*
