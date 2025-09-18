@@ -1,0 +1,5 @@
+alias WhoknowsElixirMonolith.{User, Accounts}
+changeset = User.registration_changeset(%User{}, %{"email" => "test@example.com", "password" => "MySecurePassword123\!", "name" => "Test User"})
+IO.inspect(changeset.changes.password_hash, label: "Hashed password")
+User.valid_password?(%User{password_hash: changeset.changes.password_hash}, "MySecurePassword123\!")
+User.valid_password?(%User{password_hash: changeset.changes.password_hash}, "WrongPassword")
