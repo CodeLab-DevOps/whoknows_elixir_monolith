@@ -74,6 +74,17 @@ defmodule WhoknowsElixirMonolith.User do
   end
 
   @doc """
+  A user changeset for updating profile information (email and name).
+  Does not require password.
+  """
+  def profile_changeset(user, attrs, opts \\ []) do
+    user
+    |> cast(attrs, [:email, :name])
+    |> validate_email(opts)
+    |> validate_length(:name, max: 160)
+  end
+
+  @doc """
   A user changeset for changing the password.
   """
   def password_changeset(user, attrs, opts \\ []) do

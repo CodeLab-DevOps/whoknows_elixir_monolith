@@ -104,7 +104,7 @@ defmodule WhoknowsElixirMonolith.Accounts do
   """
   def update_user(%User{} = user, attrs) do
     user
-    |> User.registration_changeset(attrs)
+    |> User.profile_changeset(attrs)
     |> Repo.update()
   end
 
