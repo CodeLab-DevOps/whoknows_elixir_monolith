@@ -33,7 +33,7 @@ defmodule WhoknowsElixirMonolith.User do
   defp validate_password(changeset, opts) do
     changeset
     |> validate_required([:password])
-    |> validate_length(:password, min: 12, max: 72)
+    |> validate_length(:password, min: 12)
     |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
     |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
     |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
@@ -46,7 +46,8 @@ defmodule WhoknowsElixirMonolith.User do
 
     if hash_password? && password && changeset.valid? do
       changeset
-      |> validate_length(:password, max: 72, count: :bytes)
+      # Cap at a generous byte limit to avoid DoS on extreme lengths
+      |> validate_length(:password, max: 4096, count: :bytes)
       |> put_change(:password_hash, hash_password(password))
       |> delete_change(:password)
     else
