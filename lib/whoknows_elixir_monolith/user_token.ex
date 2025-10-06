@@ -126,7 +126,7 @@ defmodule WhoknowsElixirMonolith.UserToken do
   @doc """
   Checks if the token is valid and returns its underlying lookup query.
 
-  The query returns the user found by the token, if any.
+  The query returns the token record, if any. The caller can join or preload the user as needed.
 
   This is used to validate requests to change the user
   email. It is different from `verify_email_token_query/2` precisely because
