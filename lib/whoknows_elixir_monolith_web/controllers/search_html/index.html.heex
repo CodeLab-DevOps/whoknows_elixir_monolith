@@ -55,7 +55,8 @@
           </a>
         </h3>
         <p class="search-result-description text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">
-          <%= String.slice(result.content, 0, 200) %><%= if String.length(result.content) > 200, do: "..." %>
+          <% content = result.content || "" %>
+          <%= String.slice(content, 0, 200) %><%= if String.length(content) > 200, do: "..." %>
         </p>
         <div class="mt-3 text-sm text-gray-500 dark:text-gray-400">
           <span class="font-medium">URL:</span>
