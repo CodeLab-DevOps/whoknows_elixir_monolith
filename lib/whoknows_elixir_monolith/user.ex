@@ -8,6 +8,7 @@ defmodule WhoknowsElixirMonolith.User do
     field :password, :string, virtual: true, redact: true
     field :password_hash, :string, redact: true
     field :name, :string
+    field :confirmed_at, :utc_datetime
 
     timestamps(type: :utc_datetime)
   end
