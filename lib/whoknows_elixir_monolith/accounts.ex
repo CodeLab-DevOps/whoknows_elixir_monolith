@@ -155,10 +155,10 @@ defmodule WhoknowsElixirMonolith.Accounts do
 
   ## Examples
 
-      iex> update_user_password(user, "valid password", %{password: ...})
+      iex> update_user_password(user, %{password: "new_password"})
       {:ok, %User{}}
 
-      iex> update_user_password(user, "invalid", %{password: ...})
+      iex> update_user_password(user, %{password: "short"})
       {:error, %Ecto.Changeset{}}
 
   """
