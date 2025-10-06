@@ -1,31 +1,23 @@
 defmodule WhoknowsElixirMonolithWeb.UserController do
-    use WhoknowsElixirMonolithWeb, :controller
+  use WhoknowsElixirMonolithWeb, :controller
 
+  alias WhoknowsElixirMonolith.Accounts
+  alias WhoknowsElixirMonolith.User
 
-    def register(conn, _params) do
-      render(conn, :register )
+  def register(conn, _params) do
+    if conn.assigns[:current_user] do
+      redirect(conn, to: ~p"/")
+    else
+      changeset = Accounts.change_user(%User{})
+      render(conn, :register, changeset: changeset)
     end
-
-    # POST /api/register
- # POST /api/register
-  def p_register(conn, params) do
-    render(conn, :p_register, %{payload: params})
-    # Alternative if you want to skip the JSON view module:
-    # json(conn, %{ok: true, payload: params})
   end
 
   def login(conn, _params) do
-    render(conn, :login)
-    #code used for userlogin
-  end
-
-  def p_login(conn, params) do
-    render(conn, :p_login, %{payload: params})
-    #api endpoint for login
-  end
-
-  def logout(conn, _params) do
-    conn
-    |> redirect(to: "/")
+    if conn.assigns[:current_user] do
+      redirect(conn, to: ~p"/")
+    else
+      render(conn, :login)
+    end
   end
 end
