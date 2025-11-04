@@ -19,8 +19,9 @@ defmodule WhoknowsElixirMonolith.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :name])
+    |> cast(attrs, [:email, :password, :password_confirmation, :name])
     |> validate_email(opts)
+    |> validate_password_confirmation()
     |> validate_password(opts)
   end
 
@@ -41,6 +42,12 @@ defmodule WhoknowsElixirMonolith.User do
     |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
     |> maybe_hash_password(opts)
   end
+
+  defp validate_password_confirmation(changeset) do
+  changeset
+  |> validate_required([:password_confirmation])
+  |> validate_confirmation(:password, message: "passwords do not match")
+end
 
   defp maybe_hash_password(changeset, opts) do
     hash_password? = Keyword.get(opts, :hash_password, true)
