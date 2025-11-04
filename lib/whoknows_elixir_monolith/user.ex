@@ -6,6 +6,7 @@ defmodule WhoknowsElixirMonolith.User do
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true, redact: true
+    field :password_confirmation, :string, virtual: true, redact: true
     field :password_hash, :string, redact: true
     field :name, :string
     field :confirmed_at, :utc_datetime
