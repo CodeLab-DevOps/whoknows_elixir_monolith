@@ -8,10 +8,14 @@ defmodule WhoknowsElixirMonolithWeb.Router do
     plug :put_root_layout, html: {WhoknowsElixirMonolithWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug WhoknowsElixirMonolithWeb.UserAuth, :fetch_current_user
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
   end
 
   scope "/", WhoknowsElixirMonolithWeb do
@@ -19,17 +23,17 @@ defmodule WhoknowsElixirMonolithWeb.Router do
 
     get "/", SearchController, :index
     get "/register", UserController, :register
-    get "/weather", WeatherController, :weather
     get "/login", UserController, :login
+    get "/weather", WeatherController, :weather
   end
 
   # Other scopes may use custom stacks.
-   scope "/api", WhoknowsElixirMonolithWeb do
+   scope "/api", WhoknowsElixirMonolithWeb.Api do
      pipe_through :api
 
      get "/search", SearchController, :search
-     post "/register", UserController, :p_register
-     post "/login", UserController, :p_login
+     post "/register", UserController, :register
+     post "/login", UserController, :login
      get "/logout", UserController, :logout
    end
 

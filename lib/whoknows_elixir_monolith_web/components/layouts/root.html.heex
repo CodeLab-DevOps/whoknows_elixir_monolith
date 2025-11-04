@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="antialiased">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="WhoknowsElixirMonolith" suffix=" · Phoenix Framework">
+    <.live_title default="¿Who Knows?">
       {assigns[:page_title]}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
@@ -16,21 +16,119 @@
           if (theme === "system") {
             localStorage.removeItem("phx:theme");
             document.documentElement.removeAttribute("data-theme");
+            // Apply system preference when in system mode
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute("data-theme", systemTheme);
           } else {
             localStorage.setItem("phx:theme", theme);
             document.documentElement.setAttribute("data-theme", theme);
           }
         };
+
+        // Initialize theme on page load
+        const savedTheme = localStorage.getItem("phx:theme");
         if (!document.documentElement.hasAttribute("data-theme")) {
-          setTheme(localStorage.getItem("phx:theme") || "system");
+          setTheme(savedTheme || "system");
         }
-        window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
-        
+
+        // Listen for system theme changes when in system mode
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+          if (!localStorage.getItem("phx:theme")) { // Only apply if in system mode
+            document.documentElement.setAttribute("data-theme", e.matches ? 'dark' : 'light');
+          }
+        });
+
+        // Listen for storage changes (other tabs)
+        window.addEventListener("storage", (e) => {
+          if (e.key === "phx:theme") {
+            setTheme(e.newValue || "system");
+          }
+        });
+
+        // Listen for theme toggle clicks
         window.addEventListener("phx:set-theme", (e) => setTheme(e.target.dataset.phxTheme));
       })();
     </script>
   </head>
-  <body>
-    {@inner_content}
+  <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <div class="page min-h-screen flex flex-col">
+      <!-- Modern Header with Gradient -->
+      <header class="bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-blue-700 dark:to-indigo-800 shadow-lg">
+        <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center space-x-4">
+              <h1>
+                <.link navigate={~p"/"} id="nav-logo" class="text-2xl font-bold text-white hover:text-blue-100 transition-colors duration-200">
+                  ¿Who Knows?
+                </.link>
+              </h1>
+            </div>
+
+            <div class="flex items-center space-x-6">
+              <!-- Theme Toggle -->
+              <div class="relative">
+                <Layouts.theme_toggle />
+              </div>
+
+              <!-- Auth Navigation -->
+              <div class="flex items-center space-x-4">
+                <%= if assigns[:current_user] do %>
+                  <span class="text-blue-100 text-sm">
+                    Welcome, <span class="font-medium"><%= @current_user.name || @current_user.email %></span>
+                  </span>
+                  <a
+                    id="nav-logout"
+                    href="/"
+                    onclick="event.preventDefault();fetch('/api/logout',{credentials:'same-origin'}).then(function(){window.location.href='/'})"
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-200 cursor-pointer"
+                  >
+                    Logout
+                  </a>
+                <% else %>
+                  <.link
+                    id="nav-login"
+                    navigate={~p"/login"}
+                    class="text-blue-100 hover:text-white transition-colors duration-200 text-sm font-medium"
+                  >
+                    Log in
+                  </.link>
+                  <.link
+                    id="nav-register"
+                    navigate={~p"/register"}
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm"
+                  >
+                    Register
+                  </.link>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <!-- Main Content -->
+      <main class="flex-1 bg-gray-50 dark:bg-gray-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {@inner_content}
+        </div>
+      </main>
+
+      <!-- Modern Footer -->
+      <footer class="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+            <p class="flex items-center space-x-1">
+              <span class="font-medium text-gray-900 dark:text-gray-100">¿Who Knows?</span>
+              <span>© 2009-2024</span>
+            </p>
+            <div class="flex items-center space-x-6">
+              <a href="https://codelabs-devops.betteruptime.com/" class="hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200">
+                Status
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   </body>
 </html>
