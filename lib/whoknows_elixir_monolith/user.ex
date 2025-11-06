@@ -19,7 +19,6 @@ defmodule WhoknowsElixirMonolith.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-      IO.inspect(attrs, label: "ATTRS RECEIVED")
     |> cast(attrs, [:email, :password, :password2, :name])
     |> validate_email(opts)
     |> validate_confirmation(:password, name: :password2)
