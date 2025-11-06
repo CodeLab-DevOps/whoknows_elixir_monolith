@@ -21,6 +21,7 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
           conn
           |> put_status(:unprocessable_entity)
           |> json(%{detail: errors})
+          IO.inspect(changeset.errors, label: "VALIDATION ERRORS")
       end
     end
   end

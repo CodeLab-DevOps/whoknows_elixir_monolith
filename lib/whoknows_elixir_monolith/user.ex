@@ -6,7 +6,7 @@ defmodule WhoknowsElixirMonolith.User do
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true, redact: true
-    field :password_confirmation, :string, virtual: true, redact: true
+    field :password2, :string, virtual: true, redact: true
     field :password_hash, :string, redact: true
     field :name, :string
     field :confirmed_at, :utc_datetime
@@ -19,9 +19,10 @@ defmodule WhoknowsElixirMonolith.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :password_confirmation, :name])
+      IO.inspect(attrs, label: "ATTRS RECEIVED")
+    |> cast(attrs, [:email, :password, :password2, :name])
     |> validate_email(opts)
-    |> validate_password_confirmation()
+    |> validate_confirmation(:password, name: :password2)
     |> validate_password(opts)
   end
 
@@ -43,11 +44,6 @@ defmodule WhoknowsElixirMonolith.User do
     |> maybe_hash_password(opts)
   end
 
-  defp validate_password_confirmation(changeset) do
-  changeset
-  |> validate_required([:password_confirmation])
-  |> validate_confirmation(:password, message: "passwords do not match")
-end
 
   defp maybe_hash_password(changeset, opts) do
     hash_password? = Keyword.get(opts, :hash_password, true)
