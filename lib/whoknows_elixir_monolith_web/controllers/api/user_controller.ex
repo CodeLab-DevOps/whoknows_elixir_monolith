@@ -3,10 +3,25 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
 
   alias WhoknowsElixirMonolith.Accounts
 
-  def register(conn, %{"user" => user_params}) do
+  def register(conn, params) do
     if conn.assigns[:current_user] do
       redirect(conn, to: ~p"/")
     else
+      # Handle both nested "user" params and flat params from form submissions
+      user_params = case params do
+        %{"user" => user_map} -> user_map
+        _ ->
+          # Map flat form fields to User schema fields
+          %{
+            "email" => params["email"],
+            "password" => params["password"],
+            "password_confirmation" => params["password2"],
+            "name" => params["username"]
+          }
+          |> Enum.reject(fn {_, v} -> is_nil(v) end)
+          |> Map.new()
+      end
+
       case Accounts.create_user(user_params) do
         {:ok, user} ->
           token = Accounts.generate_user_session_token(user)
