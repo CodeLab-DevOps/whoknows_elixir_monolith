@@ -45,6 +45,7 @@ defmodule WhoknowsElixirMonolith.BetterStackLogger do
   end
 
   defp format_message({:string, str}), do: to_string(str)
+  defp format_message({:report, _report}), do: "report"
   defp format_message({msg_format, args}) when is_list(args) do
     try do
       :io_lib.format(msg_format, args) |> to_string()
@@ -52,7 +53,16 @@ defmodule WhoknowsElixirMonolith.BetterStackLogger do
       _ -> to_string(msg_format)
     end
   end
-  defp format_message(msg), do: to_string(msg)
+  defp format_message(msg) when is_binary(msg), do: msg
+  defp format_message(msg) when is_atom(msg), do: to_string(msg)
+  defp format_message(msg) when is_list(msg) do
+    try do
+      to_string(msg)
+    rescue
+      _ -> inspect(msg)
+    end
+  end
+  defp format_message(msg), do: inspect(msg)
 
   defp send_to_betterstack(payload, token, host) do
     url = "https://#{host}/v1/logs"

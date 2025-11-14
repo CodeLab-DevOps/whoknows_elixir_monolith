@@ -93,7 +93,7 @@ if config_env() == :prod do
   if betterstack_token do
     config :opentelemetry_exporter,
       otlp_protocol: :http_protobuf,
-      otlp_endpoint: "https://#{betterstack_host}",
+      otlp_endpoint: "https://#{betterstack_host}/v1/traces",
       otlp_headers: [
         {~c"authorization", String.to_charlist("Bearer #{betterstack_token}")}
       ]
