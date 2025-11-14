@@ -69,14 +69,19 @@ defmodule WhoknowsElixirMonolith.BetterStackMetrics do
 
   def handle_event(_event, _measurements, _metadata, _config), do: :ok
 
-  defp send_metric(payload, %{token: _token, host: host}) do
-    url = "https://#{host}/metrics"
+  defp send_metric(payload, %{token: token, host: host}) do
+    url = "https://#{host}/v1/metrics"
+    auth_header = "Bearer #{token}"
+    headers = [
+      {~c"authorization", String.to_charlist(auth_header)},
+      {~c"content-type", ~c"application/json"}
+    ]
 
     body = Jason.encode!(payload)
 
     Task.start(fn ->
       try do
-        :httpc.request(:post, {String.to_charlist(url), [], ~c"application/json", body}, [], [])
+        :httpc.request(:post, {String.to_charlist(url), headers, ~c"application/json", body}, [], [])
       rescue
         e -> Logger.debug("BetterStack metric send failed: #{inspect(e)}")
       end

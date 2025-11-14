@@ -4,56 +4,65 @@ defmodule WhoknowsElixirMonolith.BetterStackLogger do
   """
 
   require Logger
+  require Kernel
 
   def attach(token, host) do
-    config = %{
-      token: token,
-      host: host
+    handler_config = %{
+      "token" => token,
+      "host" => host
     }
 
-    :logger.add_handler(__MODULE__, __MODULE__, config)
+    :logger.add_handler(__MODULE__, __MODULE__, handler_config)
+    :ok
   end
 
-  # Logger handler callback
-  def log(log_event, config) do
-    %{
-      level: level,
-      msg: {msg_format, args},
-      meta: _meta
-    } = log_event
+  # Logger handler callback - this is called by the Erlang logger
+  def log(log_event, handler_config) do
+    try do
+      %{
+        level: level,
+        msg: {msg_format, args},
+        meta: _meta
+      } = log_event
 
-    message = try do
-      :io_lib.format(msg_format, args) |> to_string()
+      message = try do
+        :io_lib.format(msg_format, args) |> to_string()
+      rescue
+        _ -> msg_format |> to_string()
+      end
+
+      timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+
+      payload = %{
+        "dt" => timestamp,
+        "level" => level |> to_string(),
+        "message" => message,
+        "source" => "elixir-app"
+      }
+
+      token = handler_config["token"]
+      host = handler_config["host"]
+      send_to_betterstack(payload, token, host)
     rescue
-      _ -> msg_format |> to_string()
+      e -> Kernel.inspect(e)
     end
-
-    timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
-
-    payload = %{
-      "dt" => timestamp,
-      "level" => level |> to_string(),
-      "message" => message,
-      "source" => "elixir-app"
-    }
-
-    send_to_betterstack(payload, config)
   end
 
-  defp send_to_betterstack(payload, %{token: token, host: host}) do
-    url = "https://#{host}"
-    _headers = [
-      {"Authorization", "Bearer #{token}"},
-      {"Content-Type", "application/json"}
+  defp send_to_betterstack(payload, token, host) do
+    url = "https://#{host}/v1/logs"
+    auth_header = "Bearer #{token}"
+    headers = [
+      {~c"authorization", String.to_charlist(auth_header)},
+      {~c"content-type", ~c"application/json"}
     ]
 
     body = Jason.encode!(payload)
 
     Task.start(fn ->
       try do
-        :httpc.request(:post, {String.to_charlist(url), [], ~c"application/json", body}, [], [])
+        :httpc.request(:post, {String.to_charlist(url), headers, ~c"application/json", body}, [], [])
       rescue
-        e -> Logger.debug("BetterStack log send failed: #{inspect(e)}")
+        _e -> :ok
       end
     end)
   end
