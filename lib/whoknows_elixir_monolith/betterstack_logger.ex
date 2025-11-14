@@ -21,15 +21,11 @@ defmodule WhoknowsElixirMonolith.BetterStackLogger do
     try do
       %{
         level: level,
-        msg: {msg_format, args},
+        msg: msg,
         meta: _meta
       } = log_event
 
-      message = try do
-        :io_lib.format(msg_format, args) |> to_string()
-      rescue
-        _ -> msg_format |> to_string()
-      end
+      message = format_message(msg)
 
       timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
 
@@ -44,9 +40,19 @@ defmodule WhoknowsElixirMonolith.BetterStackLogger do
       host = handler_config["host"]
       send_to_betterstack(payload, token, host)
     rescue
-      e -> Kernel.inspect(e)
+      _e -> :ok
     end
   end
+
+  defp format_message({:string, str}), do: to_string(str)
+  defp format_message({msg_format, args}) when is_list(args) do
+    try do
+      :io_lib.format(msg_format, args) |> to_string()
+    rescue
+      _ -> to_string(msg_format)
+    end
+  end
+  defp format_message(msg), do: to_string(msg)
 
   defp send_to_betterstack(payload, token, host) do
     url = "https://#{host}/v1/logs"
