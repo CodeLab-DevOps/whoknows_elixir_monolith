@@ -66,7 +66,9 @@ defmodule WhoknowsElixirMonolith.BetterStackLogger do
 
     Task.start(fn ->
       try do
-        :httpc.request(:post, {String.to_charlist(url), headers, ~c"application/json", body}, [], [])
+        :httpc.request(:post, {String.to_charlist(url), headers, ~c"application/json", body}, [
+          {:timeout, 10000}
+        ], [])
       rescue
         _e -> :ok
       end

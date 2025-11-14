@@ -88,14 +88,14 @@ if config_env() == :prod do
 
   # Configure OpenTelemetry with BetterStack if token is provided
   betterstack_token = System.get_env("BETTERSTACK_OTLP_TOKEN")
-  betterstack_host = System.get_env("BETTERSTACK_OTLP_HOST") || "s1589488.eu-nbg-2.betterstackdata.com"
+  betterstack_host = "s1589488.eu-nbg-2.betterstackdata.com"
 
   if betterstack_token do
     config :opentelemetry_exporter,
       otlp_protocol: :http_protobuf,
       otlp_endpoint: "https://#{betterstack_host}",
       otlp_headers: [
-        {~c"authorization", "Bearer #{betterstack_token}"}
+        {~c"authorization", String.to_charlist("Bearer #{betterstack_token}")}
       ]
 
     # Configure batch processor with shorter timeouts for faster export

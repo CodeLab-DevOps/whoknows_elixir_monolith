@@ -81,7 +81,9 @@ defmodule WhoknowsElixirMonolith.BetterStackMetrics do
 
     Task.start(fn ->
       try do
-        :httpc.request(:post, {String.to_charlist(url), headers, ~c"application/json", body}, [], [])
+        :httpc.request(:post, {String.to_charlist(url), headers, ~c"application/json", body}, [
+          {:timeout, 10000}
+        ], [])
       rescue
         e -> Logger.debug("BetterStack metric send failed: #{inspect(e)}")
       end
