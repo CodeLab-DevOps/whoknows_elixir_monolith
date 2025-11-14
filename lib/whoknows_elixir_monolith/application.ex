@@ -12,7 +12,7 @@ defmodule WhoknowsElixirMonolith.Application do
     :ok = :opentelemetry_cowboy.setup()
     :ok = OpentelemetryPhoenix.setup(adapter: :cowboy2)
 
-    # Start BetterStack logger if token is configured
+    # Start BetterStack logger and metrics if token is configured
     betterstack_token = System.get_env("BETTERSTACK_OTLP_TOKEN")
     betterstack_host = System.get_env("BETTERSTACK_OTLP_HOST") || "s1589488.eu-nbg-2.betterstackdata.com"
 
@@ -26,7 +26,22 @@ defmodule WhoknowsElixirMonolith.Application do
       WhoknowsElixirMonolithWeb.Telemetry,
       WhoknowsElixirMonolith.Repo,
       {DNSCluster, query: Application.get_env(:whoknows_elixir_monolith, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: WhoknowsElixirMonolith.PubSub},
+      {Phoenix.PubSub, name: WhoknowsElixirMonolith.PubSub}
+    ]
+
+    # Add BetterStack metrics if token is configured
+    children =
+      if betterstack_token do
+        children ++
+          [
+            {WhoknowsElixirMonolith.BetterStackMetrics,
+             token: betterstack_token, host: betterstack_host}
+          ]
+      else
+        children
+      end
+
+    children = children ++ [
       # Start a worker by calling: WhoknowsElixirMonolith.Worker.start_link(arg)
       # {WhoknowsElixirMonolith.Worker, arg},
       # Start to serve requests, typically the last entry
