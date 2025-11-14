@@ -12,6 +12,14 @@ defmodule WhoknowsElixirMonolith.Application do
     :ok = :opentelemetry_cowboy.setup()
     :ok = OpentelemetryPhoenix.setup(adapter: :cowboy2)
 
+    # Start BetterStack logger if token is configured
+    betterstack_token = System.get_env("BETTERSTACK_OTLP_TOKEN")
+    betterstack_host = System.get_env("BETTERSTACK_OTLP_HOST") || "s1589488.eu-nbg-2.betterstackdata.com"
+
+    if betterstack_token do
+      WhoknowsElixirMonolith.BetterStackLogger.attach(betterstack_token, betterstack_host)
+    end
+
     :logger.info(~c"OpenTelemetry instrumentation initialized")
 
     children = [
