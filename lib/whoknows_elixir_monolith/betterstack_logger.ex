@@ -12,8 +12,7 @@ defmodule WhoknowsElixirMonolith.BetterStackLogger do
       "host" => host
     }
 
-    result = :logger.add_handler(__MODULE__, __MODULE__, handler_config)
-    :ok
+    :logger.add_handler(__MODULE__, __MODULE__, handler_config)
   end
 
   # Logger handler callback - this is called by the Erlang logger
@@ -38,9 +37,13 @@ defmodule WhoknowsElixirMonolith.BetterStackLogger do
 
       token = handler_config["token"]
       host = handler_config["host"]
-      send_to_betterstack(payload, token, host)
+
+      if token && host do
+        send_to_betterstack(payload, token, host)
+      end
     rescue
-      _e -> :ok
+      _e ->
+        :ok
     end
   end
 
