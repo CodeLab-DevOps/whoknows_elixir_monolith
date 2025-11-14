@@ -3,9 +3,24 @@ defmodule WhoknowsElixirMonolith.BetterStackMetrics do
   Metrics exporter that sends metrics to BetterStack.
   """
 
+  use GenServer
   require Logger
 
   def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]},
+      type: :worker,
+      restart: :permanent,
+      shutdown: 500
+    }
+  end
+
+  def init(opts) do
     token = Keyword.fetch!(opts, :token)
     host = Keyword.fetch!(opts, :host)
 
@@ -14,10 +29,6 @@ defmodule WhoknowsElixirMonolith.BetterStackMetrics do
       host: host
     }
 
-    GenServer.start_link(__MODULE__, config, name: __MODULE__)
-  end
-
-  def init(config) do
     # Subscribe to telemetry events for basic metrics
     :telemetry.attach_many(
       "betterstack-metrics",
@@ -58,7 +69,7 @@ defmodule WhoknowsElixirMonolith.BetterStackMetrics do
 
   def handle_event(_event, _measurements, _metadata, _config), do: :ok
 
-  defp send_metric(payload, %{token: token, host: host}) do
+  defp send_metric(payload, %{token: _token, host: host}) do
     url = "https://#{host}/metrics"
 
     body = Jason.encode!(payload)
