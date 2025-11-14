@@ -7,6 +7,13 @@ defmodule WhoknowsElixirMonolith.Application do
 
   @impl true
   def start(_type, _args) do
+    # Initialize OpenTelemetry instrumentation
+    # This must be done before any web server components start
+    :ok = :opentelemetry_cowboy.setup()
+    :ok = OpentelemetryPhoenix.setup(adapter: :cowboy2)
+
+    :logger.info(~c"OpenTelemetry instrumentation initialized")
+
     children = [
       WhoknowsElixirMonolithWeb.Telemetry,
       WhoknowsElixirMonolith.Repo,

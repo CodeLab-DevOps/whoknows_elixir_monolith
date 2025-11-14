@@ -84,3 +84,15 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Configure OpenTelemetry for development - output traces to stdout
+config :opentelemetry,
+  traces_exporter: {:otel_exporter_stdout, []},
+  sampler: {:otel_sampler_always_on, %{}},
+  processors: [
+    {:otel_batch_processor,
+     %{
+       exporter: {:otel_exporter_stdout, []},
+       scheduled_delay_ms: 1000
+     }}
+  ]

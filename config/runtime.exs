@@ -86,6 +86,31 @@ if config_env() == :prod do
   #
   # Check `Plug.SSL` for all available options in `force_ssl`.
 
+  # Configure OpenTelemetry with BetterStack if token is provided
+  betterstack_token = System.get_env("BETTERSTACK_OTLP_TOKEN")
+  betterstack_host = System.get_env("BETTERSTACK_OTLP_HOST") || "s1589488.eu-nbg-2.betterstackdata.com"
+
+  if betterstack_token do
+    config :opentelemetry_exporter,
+      otlp_protocol: :http_protobuf,
+      otlp_endpoint: "https://#{betterstack_host}",
+      otlp_headers: [
+        {~c"authorization", "Bearer #{betterstack_token}"}
+      ]
+
+    # Configure batch processor with shorter timeouts for faster export
+    config :opentelemetry,
+      sampler: {:otel_sampler_always_on, %{}},
+      processors: [
+        {:otel_batch_processor,
+         %{
+           exporter: {:opentelemetry_exporter, %{}},
+           scheduled_delay_ms: 5000,
+           export_timeout_ms: 30000
+         }}
+      ]
+  end
+
   # ## Configuring the mailer
   #
   # In production you need to configure the mailer to use a different adapter.

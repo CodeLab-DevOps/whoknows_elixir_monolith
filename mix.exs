@@ -21,7 +21,7 @@ defmodule WhoknowsElixirMonolith.MixProject do
   def application do
     [
       mod: {WhoknowsElixirMonolith.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :opentelemetry]
     ]
   end
 
@@ -65,7 +65,13 @@ defmodule WhoknowsElixirMonolith.MixProject do
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      # OpenTelemetry dependencies
+      {:opentelemetry_api, "~> 1.5"},
+      {:opentelemetry, "~> 1.7"},
+      {:opentelemetry_exporter, "~> 1.10"},
+      {:opentelemetry_phoenix, "~> 2.0"},
+      {:opentelemetry_cowboy, "~> 1.0"}
     ]
   end
 
