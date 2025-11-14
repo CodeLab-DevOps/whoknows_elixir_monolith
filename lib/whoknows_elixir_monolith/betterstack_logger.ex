@@ -12,7 +12,7 @@ defmodule WhoknowsElixirMonolith.BetterStackLogger do
       "host" => host
     }
 
-    :logger.add_handler(__MODULE__, __MODULE__, handler_config)
+    result = :logger.add_handler(__MODULE__, __MODULE__, handler_config)
     :ok
   end
 

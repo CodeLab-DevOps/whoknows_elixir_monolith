@@ -85,7 +85,7 @@ defmodule WhoknowsElixirMonolith.BetterStackMetrics do
           {:timeout, 10000}
         ], [])
       rescue
-        e -> Logger.debug("BetterStack metric send failed: #{inspect(e)}")
+        _e -> :ok
       end
     end)
   end
