@@ -1,0 +1,216 @@
+{
+  "dashboard": {
+    "title": "WhoKnows Application Metrics",
+    "tags": ["phoenix", "elixir", "whoknows"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "5s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "HTTP Requests by Status Code",
+        "type": "graph",
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(phoenix_endpoint_stop_duration_count[5m])",
+            "legendFormat": "{{status}} - {{method}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "reqps",
+            "label": "Requests per second"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Total Requests by Endpoint",
+        "type": "graph",
+        "gridPos": {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "phoenix_router_dispatch_stop_duration_count",
+            "legendFormat": "{{route}} - {{method}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "short",
+            "label": "Total Requests"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Database Queries per Second",
+        "type": "graph",
+        "gridPos": {
+          "x": 0,
+          "y": 8,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(whoknows_elixir_monolith_repo_query_total_time_count[5m])",
+            "legendFormat": "Queries/sec",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "qps",
+            "label": "Queries per second"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Total Database Query Time",
+        "type": "graph",
+        "gridPos": {
+          "x": 12,
+          "y": 8,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(whoknows_elixir_monolith_repo_query_total_time_sum[5m])",
+            "legendFormat": "Query time (ms/sec)",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": "Milliseconds"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "VM Memory Usage",
+        "type": "graph",
+        "gridPos": {
+          "x": 0,
+          "y": 16,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "vm_memory_total",
+            "legendFormat": "Memory (KB)",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "deckbytes",
+            "label": "Memory"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "VM Run Queue Lengths",
+        "type": "graph",
+        "gridPos": {
+          "x": 8,
+          "y": 16,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "vm_total_run_queue_lengths_total",
+            "legendFormat": "Total",
+            "refId": "A"
+          },
+          {
+            "expr": "vm_total_run_queue_lengths_cpu",
+            "legendFormat": "CPU",
+            "refId": "B"
+          },
+          {
+            "expr": "vm_total_run_queue_lengths_io",
+            "legendFormat": "IO",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "short",
+            "label": "Queue Length"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Error Rate (4xx/5xx)",
+        "type": "graph",
+        "gridPos": {
+          "x": 16,
+          "y": 16,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(phoenix_endpoint_stop_duration_count{status=~\"4..\"}[5m])",
+            "legendFormat": "4xx - {{status}}",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(phoenix_endpoint_stop_duration_count{status=~\"5..\"}[5m])",
+            "legendFormat": "5xx - {{status}}",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "reqps",
+            "label": "Errors per second"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -21,65 +21,52 @@ defmodule WhoknowsElixirMonolithWeb.Telemetry do
 
   def metrics do
     [
-      # Phoenix Metrics
-      summary("phoenix.endpoint.start.system_time",
-        unit: {:native, :millisecond}
+      # Phoenix HTTP Request Metrics - for understanding user behavior
+      counter("phoenix.endpoint.stop.duration",
+        tags: [:method, :status],
+        tag_values: fn %{conn: conn} ->
+          %{
+            method: conn.method,
+            status: conn.status
+          }
+        end,
+        description: "HTTP request counter by method and status code"
       ),
-      summary("phoenix.endpoint.stop.duration",
-        unit: {:native, :millisecond}
+      counter("phoenix.router_dispatch.stop.duration",
+        tags: [:route, :method],
+        tag_values: fn %{conn: conn, route: route} ->
+          %{
+            route: route,
+            method: conn.method
+          }
+        end,
+        description: "Route access counter by endpoint and method"
       ),
-      summary("phoenix.router_dispatch.start.system_time",
+      counter("phoenix.router_dispatch.exception.duration",
         tags: [:route],
-        unit: {:native, :millisecond}
-      ),
-      summary("phoenix.router_dispatch.exception.duration",
-        tags: [:route],
-        unit: {:native, :millisecond}
-      ),
-      summary("phoenix.router_dispatch.stop.duration",
-        tags: [:route],
-        unit: {:native, :millisecond}
-      ),
-      summary("phoenix.socket_connected.duration",
-        unit: {:native, :millisecond}
-      ),
-      sum("phoenix.socket_drain.count"),
-      summary("phoenix.channel_joined.duration",
-        unit: {:native, :millisecond}
-      ),
-      summary("phoenix.channel_handled_in.duration",
-        tags: [:event],
-        unit: {:native, :millisecond}
+        description: "Count of exceptions in route handling"
       ),
 
-      # Database Metrics
-      summary("whoknows_elixir_monolith.repo.query.total_time",
+      # Database Query Metrics
+      counter("whoknows_elixir_monolith.repo.query.total_time",
         unit: {:native, :millisecond},
-        description: "The sum of the other measurements"
-      ),
-      summary("whoknows_elixir_monolith.repo.query.decode_time",
-        unit: {:native, :millisecond},
-        description: "The time spent decoding the data received from the database"
-      ),
-      summary("whoknows_elixir_monolith.repo.query.query_time",
-        unit: {:native, :millisecond},
-        description: "The time spent executing the query"
-      ),
-      summary("whoknows_elixir_monolith.repo.query.queue_time",
-        unit: {:native, :millisecond},
-        description: "The time spent waiting for a database connection"
-      ),
-      summary("whoknows_elixir_monolith.repo.query.idle_time",
-        unit: {:native, :millisecond},
-        description:
-          "The time the connection spent waiting before being checked out for the query"
+        description: "Database query counter"
       ),
 
       # VM Metrics
-      summary("vm.memory.total", unit: {:byte, :kilobyte}),
-      summary("vm.total_run_queue_lengths.total"),
-      summary("vm.total_run_queue_lengths.cpu"),
-      summary("vm.total_run_queue_lengths.io")
+      last_value("vm.memory.total",
+        unit: {:byte, :kilobyte},
+        description: "Total VM memory"
+      ),
+      last_value("vm.total_run_queue_lengths.total",
+        description: "Total run queue length"
+      ),
+      last_value("vm.total_run_queue_lengths.cpu",
+        description: "CPU run queue length"
+      ),
+      last_value("vm.total_run_queue_lengths.io",
+        description: "IO run queue length"
+      )
     ]
   end
 
