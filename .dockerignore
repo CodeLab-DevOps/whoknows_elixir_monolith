@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+.github
+
+# Elixir build artifacts
+/_build
+/deps
+*.ez
+erl_crash.dump
+
+# Elixir LS
+.elixir_ls
+
+# Mix lock file (we copy it explicitly)
+# mix.lock
+
+# Node modules
+/assets/node_modules
+
+# Static artifacts
+/priv/static/assets
+
+# Database files
+*.db
+*.db-*
+/priv/repo/*.db
+
+# Environment files
+.env
+.env.*
+
+# Documentation
+/doc
+*.md
+AGENTS.md
+MONITORING.md
+TROUBLESHOOTING.md
+README.md
+
+# Test files
+/test
+test_*.txt
+test_*.ps1
+
+# Monitoring
+docker-compose.monitoring.yml
+prometheus.yml
+/grafana
+start_monitoring.bat
+
+# Misc
+/old*
+OpenAPI.json
