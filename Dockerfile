@@ -86,8 +86,12 @@ USER app
 # Copy the release from builder
 COPY --from=builder --chown=app:app /app/_build/prod/rel/whoknows_elixir_monolith ./
 
-# Create directory for SQLite database
+# Create directory for SQLite database (needs write permissions)
 RUN mkdir -p /app/priv/repo
+
+# Remove write permissions from application code for security (except database directory)
+RUN find /app -type d -not -path "/app/priv/repo*" -exec chmod a-w {} + && \
+    find /app -type f -exec chmod a-w {} +
 
 # Copy migrations and seeds (these are already in the release, but we make them explicit)
 # The release already includes priv/repo/* from the builder stage
