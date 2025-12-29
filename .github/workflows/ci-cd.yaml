@@ -82,14 +82,7 @@ jobs:
         run: mix deps.compile
 
       - name: Run unit tests
-        run: mix test --cover --warnings-as-errors
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        if: always()
-        with:
-          files: ./cover/excoveralls.json
-          fail_ci_if_error: false
+        run: mix test --warnings-as-errors
 
   # ============================================
   # CD1: Build & Test in Containers
