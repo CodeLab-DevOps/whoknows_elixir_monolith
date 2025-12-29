@@ -125,7 +125,10 @@ jobs:
           platforms: linux/amd64
 
       - name: Export image tag for integration tests
-        run: echo "IMAGE_TAG=${{ steps.meta.outputs.tags }}" >> $GITHUB_ENV
+        run: |
+          # Extract the first tag from the list
+          FIRST_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n 1)
+          echo "IMAGE_TAG=$FIRST_TAG" >> $GITHUB_ENV
 
   integration-test:
     name: Integration Tests
