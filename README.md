@@ -9,6 +9,25 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
+## Testing
+
+### Unit and Integration Tests
+Run Elixir tests with:
+```bash
+mix test
+```
+
+### End-to-End Tests
+This project uses Playwright for E2E testing. See [E2E_TESTING.md](E2E_TESTING.md) for complete documentation.
+
+Quick start:
+```bash
+npm install              # Install Playwright dependencies
+npm test                 # Run all E2E tests
+npm run test:ui          # Run tests in UI mode
+npm run test:headed      # Run tests with visible browser
+```
+
 ## What happened
 
 1. Erlang was installed first (132 MB) – it is the underlying system that Elixir runs on  
