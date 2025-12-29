@@ -26,13 +26,13 @@ defmodule WhoknowsElixirMonolith.User do
   end
 
   defp validate_email(changeset, opts) do
-  changeset
-  |> validate_required([:email])
-  |> update_change(:email, &String.downcase/1)
-  |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
-  |> validate_length(:email, max: 160)
-  |> maybe_validate_unique_email(opts)
-end
+    changeset
+    |> validate_required([:email])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> validate_length(:email, max: 160)
+    |> maybe_validate_unique_email(opts)
+  end
 
   defp validate_password(changeset, opts) do
     changeset
@@ -40,11 +40,11 @@ end
     |> validate_length(:password, min: 12)
     |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
     |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
-    |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
+    |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/,
+      message: "at least one digit or punctuation character"
+    )
     |> maybe_hash_password(opts)
   end
-  
-
 
   defp maybe_hash_password(changeset, opts) do
     hash_password? = Keyword.get(opts, :hash_password, true)

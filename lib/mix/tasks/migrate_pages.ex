@@ -6,7 +6,8 @@ defmodule Mix.Tasks.MigratePages do
   def run(_args) do
     Mix.Task.run("app.start")
 
-    old_db_path = "whoknows.db"  # Update this path
+    # Update this path
+    old_db_path = "whoknows.db"
 
     IO.puts("Starting pages migration from #{old_db_path}")
 
@@ -14,7 +15,12 @@ defmodule Mix.Tasks.MigratePages do
     {:ok, old_conn} = Exqlite.Sqlite3.open(old_db_path)
 
     # Get all pages from old database
-    {:ok, statement} = Exqlite.Sqlite3.prepare(old_conn, "SELECT title, url, language, last_updated, content FROM pages")
+    {:ok, statement} =
+      Exqlite.Sqlite3.prepare(
+        old_conn,
+        "SELECT title, url, language, last_updated, content FROM pages"
+      )
+
     page_rows = collect_all_rows(old_conn, statement)
 
     IO.puts("Found #{length(page_rows)} pages to migrate")
@@ -23,7 +29,8 @@ defmodule Mix.Tasks.MigratePages do
     {migrated_count, error_count} =
       page_rows
       |> Enum.with_index(1)
-      |> Enum.reduce({0, 0}, fn {[title, url, language, last_updated, content], index}, {migrated, errors} ->
+      |> Enum.reduce({0, 0}, fn {[title, url, language, last_updated, content], index},
+                                {migrated, errors} ->
         parsed_timestamp = parse_timestamp(last_updated)
 
         page_attrs = %{
@@ -34,13 +41,15 @@ defmodule Mix.Tasks.MigratePages do
           content: content
         }
 
-        changeset = WhoknowsElixirMonolith.Page.changeset(%WhoknowsElixirMonolith.Page{}, page_attrs)
+        changeset =
+          WhoknowsElixirMonolith.Page.changeset(%WhoknowsElixirMonolith.Page{}, page_attrs)
 
         case WhoknowsElixirMonolith.Repo.insert(changeset) do
           {:ok, _page} ->
             if rem(index, 10) == 0 do
               IO.puts("Migrated #{index} pages...")
             end
+
             {migrated + 1, errors}
 
           {:error, changeset} ->
@@ -61,8 +70,10 @@ defmodule Mix.Tasks.MigratePages do
     case Exqlite.Sqlite3.step(conn, statement) do
       {:row, row} ->
         collect_all_rows(conn, statement, [row | acc])
+
       {:done} ->
         Enum.reverse(acc)
+
       other ->
         IO.puts("Unexpected result: #{inspect(other)}")
         Enum.reverse(acc)
@@ -71,9 +82,12 @@ defmodule Mix.Tasks.MigratePages do
 
   defp parse_timestamp(nil), do: nil
   defp parse_timestamp(""), do: nil
+
   defp parse_timestamp(timestamp_str) when is_binary(timestamp_str) do
     case DateTime.from_iso8601(timestamp_str <> "Z") do
-      {:ok, dt, _} -> dt
+      {:ok, dt, _} ->
+        dt
+
       {:error, _} ->
         # Try parsing without timezone
         case NaiveDateTime.from_iso8601(timestamp_str) do
@@ -82,5 +96,6 @@ defmodule Mix.Tasks.MigratePages do
         end
     end
   end
+
   defp parse_timestamp(_), do: nil
 end
