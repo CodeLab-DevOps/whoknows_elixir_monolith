@@ -16,7 +16,7 @@ jobs:
         with:
           script: |
             const body = context.payload.pull_request.body || "";
-            const requiredFields = ["Tittel:", "Beskrivelse:", "Type:", "Relaterede issues:"];
+            const requiredFields = ["Titel:", "Beskrivelse:", "Type:", "Relaterede issues:"];
             const missingFields = requiredFields.filter(field => !body.includes(field));
             if (missingFields.length > 0) {
               core.setFailed(`PR mangler følgende felter i skabelonen: ${missingFields.join(", ")}`);
