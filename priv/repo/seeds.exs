@@ -21,7 +21,6 @@ Repo.delete_all(User)
 # Seed Pages
 IO.puts("Seeding 51 pages...")
 
-
 # Page 1: Fortran
 %Page{
   title: "Fortran",
