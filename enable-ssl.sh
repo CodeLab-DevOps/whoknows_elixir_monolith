@@ -1,3 +1,37 @@
+#!/bin/bash
+# Script to enable SSL for the application
+# Run this after initial deployment to set up HTTPS
+
+set -e
+
+DOMAIN="${1:-codelab-devops.dk}"
+EMAIL="${2:-admin@${DOMAIN}}"
+
+echo "🔐 Enabling SSL for ${DOMAIN}..."
+echo ""
+
+# Step 1: Generate SSL certificates
+echo "Step 1: Generating SSL certificates with certbot..."
+docker compose exec certbot certbot certonly --webroot \
+  -w /var/www/certbot \
+  -d ${DOMAIN} \
+  -d www.${DOMAIN} \
+  --email ${EMAIL} \
+  --agree-tos \
+  --non-interactive
+
+if [ $? -ne 0 ]; then
+  echo "❌ Failed to generate SSL certificates"
+  exit 1
+fi
+
+echo "✅ SSL certificates generated successfully"
+echo ""
+
+# Step 2: Update nginx configuration to enable HTTPS
+echo "Step 2: Updating nginx configuration to enable HTTPS..."
+
+cat > nginx.conf << 'EOF'
 events {
     worker_connections 1024;
 }
@@ -69,3 +103,27 @@ http {
         }
     }
 }
+EOF
+
+echo "✅ nginx.conf updated with HTTPS configuration"
+echo ""
+
+# Step 3: Copy updated config to nginx container and reload
+echo "Step 3: Reloading nginx with new configuration..."
+docker compose exec nginx nginx -t
+docker compose restart nginx
+
+if [ $? -ne 0 ]; then
+  echo "❌ Failed to reload nginx"
+  exit 1
+fi
+
+echo "✅ nginx reloaded successfully"
+echo ""
+echo "🎉 SSL is now enabled!"
+echo ""
+echo "Your application is now accessible at:"
+echo "  https://${DOMAIN}"
+echo "  https://www.${DOMAIN}"
+echo ""
+echo "HTTP traffic will automatically redirect to HTTPS."
