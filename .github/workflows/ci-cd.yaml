@@ -1,0 +1,424 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [master, main, dev]
+  pull_request:
+    branches: [master, main, dev]
+
+env:
+  ELIXIR_VERSION: 1.15
+  OTP_VERSION: 26
+  MIX_ENV: test
+  NODE_VERSION: 18
+
+jobs:
+  # ============================================
+  # CI: Continuous Integration
+  # ============================================
+
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile with warnings as errors
+        run: mix compile --warnings-as-errors
+
+  unit-test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Run unit tests
+        run: mix test --warnings-as-errors
+
+  # ============================================
+  # CD1: Build & Test in Containers
+  # ============================================
+
+  docker-build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [lint, unit-test]
+    outputs:
+      image-tag: ${{ steps.export-tag.outputs.image-tag }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+      - name: Export image tag for integration tests
+        id: export-tag
+        run: |
+          # Extract the first tag from the list
+          FIRST_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n 1)
+          echo "image-tag=$FIRST_TAG" >> $GITHUB_OUTPUT
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: docker-build
+    services:
+      app:
+        image: ${{ needs.docker-build.outputs.image-tag }}
+        env:
+          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE || 'test_secret_key_base_at_least_64_characters_long_for_testing_purposes_only' }}
+          DATABASE_PATH: /tmp/test.db
+          PHX_HOST: localhost
+          PORT: 4000
+        ports:
+          - 4000:4000
+        options: >-
+          --health-cmd "curl -f http://localhost:4000/ || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Wait for application to be ready
+        run: |
+          timeout 60 bash -c 'until curl -f http://localhost:4000/; do sleep 2; done'
+
+      - name: Test application endpoint
+        run: |
+          echo "Testing application health..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/)
+          if [ "$RESPONSE" = "200" ] || [ "$RESPONSE" = "302" ]; then
+            echo "✅ Application is responding (HTTP $RESPONSE)"
+          else
+            echo "❌ Application health check failed (HTTP $RESPONSE)"
+            exit 1
+          fi
+
+  e2e-test:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Playwright dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Pull Docker image
+        run: docker pull ${{ needs.docker-build.outputs.image-tag }}
+
+      - name: Start application in Docker
+        run: |
+          docker run -d \
+            --name whoknows-app \
+            -p 4000:4000 \
+            -e SECRET_KEY_BASE="${{ secrets.SECRET_KEY_BASE || 'test_secret_key_base_at_least_64_characters_long_for_testing_purposes_only' }}" \
+            -e DATABASE_PATH=/tmp/e2e.db \
+            -e PHX_HOST=localhost \
+            -e PORT=4000 \
+            ${{ needs.docker-build.outputs.image-tag }}
+
+      - name: Wait for application to be ready
+        run: |
+          timeout 60 bash -c 'until curl -f http://localhost:4000/; do sleep 2; done'
+
+      - name: Run Playwright E2E tests
+        run: npm test
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Stop Docker container
+        if: always()
+        run: |
+          docker stop whoknows-app 2>/dev/null || true
+          docker rm whoknows-app 2>/dev/null || true
+
+  # ============================================
+  # CD2: Deploy to Server
+  # ============================================
+
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: [integration-test, e2e-test]
+    if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev') && github.event_name == 'push'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy production docker-compose override to server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          scp -i ~/.ssh/deploy_key docker-compose.prod.yml $DEPLOY_USER@$DEPLOY_HOST:/opt/whoknows_app/
+
+      - name: Deploy via Docker Compose on server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          IMAGE_TAG: ghcr.io/${{ github.repository }}:latest
+          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+          PHX_HOST: ${{ secrets.PHX_HOST || secrets.DEPLOY_HOST }}
+        run: |
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
+            cd /opt/whoknows_app || exit 1
+
+            # Pull latest code (for nginx.conf, configs, etc.)
+            git pull origin master
+
+            # Log in to GitHub Container Registry
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Pull latest image
+            docker pull ${{ env.IMAGE_TAG }}
+
+            # Export environment variables for docker-compose
+            export IMAGE_TAG="${{ env.IMAGE_TAG }}"
+            export SECRET_KEY_BASE="${{ env.SECRET_KEY_BASE }}"
+            export PHX_HOST="${{ env.PHX_HOST }}"
+
+            # Stop old containers
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+
+            # Start new containers (nginx, certbot, app, prometheus, grafana)
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+            # Wait for services to be healthy
+            echo "Waiting for services to start..."
+            sleep 15
+
+            # Clean up old images
+            docker image prune -f
+          ENDSSH
+
+      - name: Wait for deployment to stabilize
+        run: sleep 20
+
+      - name: Run smoke tests
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+        run: |
+          echo "🧪 Running smoke tests..."
+
+          # Test 1: Check Docker services are running
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
+            cd /opt/whoknows_app
+
+            echo "Checking Docker services status..."
+            RUNNING_SERVICES=$(docker-compose ps --services --filter "status=running" | wc -l)
+            TOTAL_SERVICES=$(docker-compose config --services | wc -l)
+
+            echo "Services running: $RUNNING_SERVICES/$TOTAL_SERVICES"
+            docker-compose ps
+
+            if [ $RUNNING_SERVICES -lt $TOTAL_SERVICES ]; then
+              echo "❌ Not all services are running"
+              docker-compose logs --tail=50
+              exit 1
+            fi
+
+            echo "✅ All Docker services are running"
+          ENDSSH
+
+          # Test 2: Check application health via internal port
+          echo "Testing application health (internal)..."
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
+            # Test app directly (bypassing nginx)
+            APP_HEALTH=$(docker exec whoknows_app curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/ || echo "000")
+
+            if [ "$APP_HEALTH" = "200" ] || [ "$APP_HEALTH" = "302" ]; then
+              echo "✅ Application is responding on port 4000 (HTTP $APP_HEALTH)"
+            else
+              echo "❌ Application health check failed (HTTP $APP_HEALTH)"
+              docker logs whoknows_app --tail=50
+              exit 1
+            fi
+          ENDSSH
+
+          # Test 3: Check nginx is serving (if PRODUCTION_URL is set)
+          if [ -n "$PRODUCTION_URL" ]; then
+            echo "Testing application via nginx at $PRODUCTION_URL..."
+
+            # Try to reach the application through nginx
+            HTTP_STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" -L "$PRODUCTION_URL" || echo "000")
+
+            if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "302" ]; then
+              echo "✅ Application is accessible via nginx (HTTP $HTTP_STATUS)"
+            else
+              echo "⚠️  Warning: Application returned HTTP $HTTP_STATUS via nginx"
+              echo "This might be expected if SSL is not yet configured"
+              # Don't fail here - might be first deployment without SSL
+            fi
+          else
+            echo "ℹ️  PRODUCTION_URL not set, testing via server IP..."
+
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://$DEPLOY_HOST" || echo "000")
+
+            if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "302" ]; then
+              echo "✅ Application is accessible via http://$DEPLOY_HOST (HTTP $HTTP_STATUS)"
+            else
+              echo "⚠️  Warning: Could not reach application via http://$DEPLOY_HOST (HTTP $HTTP_STATUS)"
+              echo "Check nginx configuration and firewall settings"
+            fi
+          fi
+
+          # Test 4: Check Prometheus metrics
+          echo "Checking Prometheus metrics endpoint..."
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
+            METRICS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9568/metrics || echo "000")
+
+            if [ "$METRICS_STATUS" = "200" ]; then
+              echo "✅ Prometheus metrics endpoint is accessible"
+            else
+              echo "⚠️  Warning: Metrics endpoint returned HTTP $METRICS_STATUS"
+            fi
+          ENDSSH
+
+          echo "✅ Smoke tests completed successfully"
+
+      - name: Display deployment info
+        if: success()
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          echo "🚀 Deployment successful!"
+          echo ""
+          echo "📍 Access points:"
+          if [ -n "$PRODUCTION_URL" ]; then
+            echo "   Application: $PRODUCTION_URL"
+          else
+            echo "   Application: http://$DEPLOY_HOST"
+          fi
+          echo "   Grafana: http://$DEPLOY_HOST:3000"
+          echo "   Prometheus: http://$DEPLOY_HOST:9090"
+          echo ""
+          echo "💡 Next steps:"
+          echo "   - Configure SSL with certbot if using a domain"
+          echo "   - Set up monitoring alerts in Grafana"
+          echo "   - Review application logs: ssh user@$DEPLOY_HOST 'cd /opt/whoknows_app && docker-compose logs -f app'"
+
+      - name: Rollback on failure
+        if: failure()
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          echo "❌ Deployment failed, initiating rollback..."
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
+            cd /opt/whoknows_app
+
+            echo "Rolling back to previous version..."
+            git reset --hard HEAD~1
+
+            # Restart with previous configuration
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+            echo "Rollback completed"
+          ENDSSH

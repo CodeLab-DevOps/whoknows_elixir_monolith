@@ -1,0 +1,36 @@
+{
+  "name": "whoknows_elixir_monolith",
+  "version": "1.0.0",
+  "description": "To start your Phoenix server:",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "test:report": "playwright show-report",
+    "test:codegen": "playwright codegen http://localhost:4000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeLab-DevOps/whoknows_elixir_monolith.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/CodeLab-DevOps/whoknows_elixir_monolith/issues"
+  },
+  "homepage": "https://github.com/CodeLab-DevOps/whoknows_elixir_monolith#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}

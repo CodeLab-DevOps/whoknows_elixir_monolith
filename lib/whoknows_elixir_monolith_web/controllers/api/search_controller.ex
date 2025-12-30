@@ -8,11 +8,12 @@ defmodule WhoknowsElixirMonolithWeb.Api.SearchController do
     query = params["q"] || ""
     language = params["language"] || "en"
 
-    search_results = if query == "" do
-      []
-    else
-      search_pages(query, language)
-    end
+    search_results =
+      if query == "" do
+        []
+      else
+        search_pages(query, language)
+      end
 
     json(conn, %{search_results: search_results})
   end

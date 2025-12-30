@@ -10,10 +10,12 @@ defmodule WhoknowsElixirMonolith.Application do
     children = [
       WhoknowsElixirMonolithWeb.Telemetry,
       WhoknowsElixirMonolith.Repo,
-      {DNSCluster, query: Application.get_env(:whoknows_elixir_monolith, :dns_cluster_query) || :ignore},
+      {DNSCluster,
+       query: Application.get_env(:whoknows_elixir_monolith, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: WhoknowsElixirMonolith.PubSub},
-      # Start a worker by calling: WhoknowsElixirMonolith.Worker.start_link(arg)
-      # {WhoknowsElixirMonolith.Worker, arg},
+      # Prometheus metrics exporter - exposes metrics at :9568/metrics for Prometheus scraping
+      {TelemetryMetricsPrometheus,
+       [metrics: WhoknowsElixirMonolithWeb.Telemetry.metrics(), port: 9568]},
       # Start to serve requests, typically the last entry
       WhoknowsElixirMonolithWeb.Endpoint
     ]
