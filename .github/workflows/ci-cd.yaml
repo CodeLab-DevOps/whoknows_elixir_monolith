@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, unit-test]
     outputs:
-      image-tag: ${{ steps.meta.outputs.tags }}
+      image-tag: ${{ steps.export-tag.outputs.image-tag }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -125,10 +125,11 @@ jobs:
           platforms: linux/amd64
 
       - name: Export image tag for integration tests
+        id: export-tag
         run: |
           # Extract the first tag from the list
           FIRST_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n 1)
-          echo "IMAGE_TAG=$FIRST_TAG" >> $GITHUB_ENV
+          echo "image-tag=$FIRST_TAG" >> $GITHUB_OUTPUT
 
   integration-test:
     name: Integration Tests
