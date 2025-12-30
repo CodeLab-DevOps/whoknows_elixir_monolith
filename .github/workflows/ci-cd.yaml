@@ -140,7 +140,7 @@ jobs:
         image: ${{ needs.docker-build.outputs.image-tag }}
         env:
           SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE || 'test_secret_key_base_at_least_64_characters_long_for_testing_purposes_only' }}
-          DATABASE_PATH: /app/data/test.db
+          DATABASE_PATH: /tmp/test.db
           PHX_HOST: localhost
           PORT: 4000
         ports:
@@ -152,39 +152,20 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up Elixir
-        uses: erlef/setup-beam@v1
-        with:
-          elixir-version: ${{ env.ELIXIR_VERSION }}
-          otp-version: ${{ env.OTP_VERSION }}
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            deps
-            _build
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-mix-
-
-      - name: Install dependencies
-        run: mix deps.get
-
       - name: Wait for application to be ready
         run: |
           timeout 60 bash -c 'until curl -f http://localhost:4000/; do sleep 2; done'
 
-      - name: Run integration tests against container
-        env:
-          APP_URL: http://localhost:4000
+      - name: Test application endpoint
         run: |
-          # Run integration tests that interact with the running container
-          # Adjust this based on your test setup
-          mix test --only integration || echo "No integration tests tagged"
+          echo "Testing application health..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/)
+          if [ "$RESPONSE" = "200" ] || [ "$RESPONSE" = "302" ]; then
+            echo "✅ Application is responding (HTTP $RESPONSE)"
+          else
+            echo "❌ Application health check failed (HTTP $RESPONSE)"
+            exit 1
+          fi
 
   e2e-test:
     name: E2E Tests (Playwright)
@@ -198,7 +179,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
 
       - name: Install Playwright dependencies
         run: npm ci
@@ -215,7 +195,7 @@ jobs:
             --name whoknows-app \
             -p 4000:4000 \
             -e SECRET_KEY_BASE="${{ secrets.SECRET_KEY_BASE || 'test_secret_key_base_at_least_64_characters_long_for_testing_purposes_only' }}" \
-            -e DATABASE_PATH=/app/data/e2e.db \
+            -e DATABASE_PATH=/tmp/e2e.db \
             -e PHX_HOST=localhost \
             -e PORT=4000 \
             ${{ needs.docker-build.outputs.image-tag }}
@@ -237,7 +217,9 @@ jobs:
 
       - name: Stop Docker container
         if: always()
-        run: docker stop whoknows-app && docker rm whoknows-app
+        run: |
+          docker stop whoknows-app 2>/dev/null || true
+          docker rm whoknows-app 2>/dev/null || true
 
   # ============================================
   # CD2: Deploy to Server
