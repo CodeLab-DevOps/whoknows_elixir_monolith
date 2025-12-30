@@ -279,7 +279,7 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          IMAGE_TAG: ghcr.io/${{ github.repository }}:latest
+          IMAGE_TAG: ghcr.io/codelab-devops/whoknows_elixir_monolith:latest
           SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
           PHX_HOST: ${{ secrets.PHX_HOST || secrets.DEPLOY_HOST }}
         run: |
@@ -294,19 +294,20 @@ jobs:
             # Log in to GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Pull latest image
-            docker pull ${{ env.IMAGE_TAG }}
+            # Pull latest image (force lowercase)
+            IMAGE_TAG_LOWER=$(echo "${{ env.IMAGE_TAG }}" | tr '[:upper:]' '[:lower:]')
+            docker pull "$IMAGE_TAG_LOWER"
 
-            # Export environment variables for docker-compose
-            export IMAGE_TAG="${{ env.IMAGE_TAG }}"
+            # Export environment variables for docker compose (use lowercase)
+            export IMAGE_TAG="$IMAGE_TAG_LOWER"
             export SECRET_KEY_BASE="${{ env.SECRET_KEY_BASE }}"
             export PHX_HOST="${{ env.PHX_HOST }}"
 
-            # Stop old containers
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+            # Stop old containers (use 'docker compose' V2 syntax)
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down || true
 
             # Start new containers (nginx, certbot, app, prometheus, grafana)
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
             # Wait for services to be healthy
             echo "Waiting for services to start..."
@@ -332,15 +333,15 @@ jobs:
             cd /opt/whoknows_app
 
             echo "Checking Docker services status..."
-            RUNNING_SERVICES=$(docker-compose ps --services --filter "status=running" | wc -l)
-            TOTAL_SERVICES=$(docker-compose config --services | wc -l)
+            RUNNING_SERVICES=$(docker compose ps --services --filter "status=running" | wc -l)
+            TOTAL_SERVICES=$(docker compose config --services | wc -l)
 
             echo "Services running: $RUNNING_SERVICES/$TOTAL_SERVICES"
-            docker-compose ps
+            docker compose ps
 
             if [ $RUNNING_SERVICES -lt $TOTAL_SERVICES ]; then
               echo "❌ Not all services are running"
-              docker-compose logs --tail=50
+              docker compose logs --tail=50
               exit 1
             fi
 
@@ -423,7 +424,7 @@ jobs:
           echo "💡 Next steps:"
           echo "   - Configure SSL with certbot if using a domain"
           echo "   - Set up monitoring alerts in Grafana"
-          echo "   - Review application logs: ssh user@$DEPLOY_HOST 'cd /opt/whoknows_app && docker-compose logs -f app'"
+          echo "   - Review application logs: ssh user@$DEPLOY_HOST 'cd /opt/whoknows_app && docker compose logs -f app'"
 
       - name: Rollback on failure
         if: failure()
@@ -438,9 +439,9 @@ jobs:
             echo "Rolling back to previous version..."
             git reset --hard HEAD~1
 
-            # Restart with previous configuration
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            # Restart with previous configuration (use 'docker compose' V2 syntax)
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
             echo "Rollback completed"
           ENDSSH
