@@ -70,14 +70,17 @@ export default defineConfig({
   ],
 
   // Run your local dev server before starting the tests
-  webServer: {
-    command: 'mix phx.server',
-    url: 'http://localhost:4000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-    env: {
-      MIX_ENV: 'test',
-      PORT: '4000',
+  // In CI, the server is already running in Docker, so we don't start our own
+  ...(process.env.CI ? {} : {
+    webServer: {
+      command: 'mix phx.server',
+      url: 'http://localhost:4000',
+      reuseExistingServer: true,
+      timeout: 120 * 1000,
+      env: {
+        MIX_ENV: 'test',
+        PORT: '4000',
+      },
     },
-  },
+  }),
 });

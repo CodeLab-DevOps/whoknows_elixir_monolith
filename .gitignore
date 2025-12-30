@@ -52,6 +52,9 @@ package-lock.json
 .env
 .env.*
 
+# Act secrets file
+.secrets
+
 # SQLite databases
 *.db
 *.db-*
