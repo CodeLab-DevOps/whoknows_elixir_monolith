@@ -27,6 +27,9 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
 
       case Accounts.create_user(user_params) do
         {:ok, user} ->
+          # Track successful user registration
+          :telemetry.execute([:whoknows, :user, :registration], %{count: 1}, %{})
+
           token = Accounts.generate_user_session_token(user)
 
           conn
@@ -47,6 +50,9 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
 
   def login(conn, %{"email" => email, "password" => password}) do
     if user = Accounts.get_user_by_email_and_password(email, password) do
+      # Track successful login
+      :telemetry.execute([:whoknows, :user, :login], %{count: 1}, %{status: "success"})
+
       token = Accounts.generate_user_session_token(user)
 
       conn
@@ -55,6 +61,9 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
       |> put_status(:ok)
       |> json(%{statusCode: 200, message: "Login successful"})
     else
+      # Track failed login
+      :telemetry.execute([:whoknows, :user, :login], %{count: 1}, %{status: "failure"})
+
       conn
       |> put_status(:unprocessable_entity)
       |> json(%{

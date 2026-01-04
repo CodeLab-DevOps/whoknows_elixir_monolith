@@ -22,6 +22,15 @@ defmodule WhoknowsElixirMonolithWeb.Api.SearchController do
           %{language: language, query: query, has_results: result_count > 0}
         )
 
+        # Emit dedicated event for searches with no results
+        if result_count == 0 do
+          :telemetry.execute(
+            [:whoknows, :search, :no_results],
+            %{count: 1},
+            %{language: language, query: query}
+          )
+        end
+
         results
       end
 

@@ -23,7 +23,17 @@ defmodule WhoknowsElixirMonolith.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: WhoknowsElixirMonolith.Supervisor]
-    Supervisor.start_link(children, opts)
+    result = Supervisor.start_link(children, opts)
+
+    # Emit initial metrics to ensure they appear in Prometheus immediately
+    Task.start(fn ->
+      Process.sleep(1000)  # Wait for supervisor to fully start
+      WhoknowsElixirMonolithWeb.Telemetry.emit_user_count()
+      WhoknowsElixirMonolithWeb.Telemetry.emit_page_count()
+      WhoknowsElixirMonolithWeb.Telemetry.emit_pages_by_language()
+    end)
+
+    result
   end
 
   # Tell Phoenix to update the endpoint configuration

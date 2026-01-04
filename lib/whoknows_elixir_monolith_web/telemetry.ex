@@ -68,17 +68,38 @@ defmodule WhoknowsElixirMonolithWeb.Telemetry do
         description: "IO run queue length"
       ),
 
-      # Business Metrics
+      # Business Metrics - User Analytics
       last_value("whoknows.users.count",
         event_name: [:whoknows, :users],
         measurement: :count,
         description: "Total number of users in the system"
       ),
+      counter("whoknows.user.registration",
+        event_name: [:whoknows, :user, :registration],
+        measurement: :count,
+        description: "New user registration counter"
+      ),
+      counter("whoknows.user.login",
+        event_name: [:whoknows, :user, :login],
+        measurement: :count,
+        tags: [:status],
+        description: "User login attempts (success/failure)"
+      ),
+
+      # Business Metrics - Content
       last_value("whoknows.pages.count",
         event_name: [:whoknows, :pages],
         measurement: :count,
         description: "Total number of pages in the system"
       ),
+      last_value("whoknows.pages.by_language",
+        event_name: [:whoknows, :pages, :by_language],
+        measurement: :count,
+        tags: [:language],
+        description: "Number of pages by language"
+      ),
+
+      # Business Metrics - Search Analytics
       counter("whoknows.search.query.count",
         event_name: [:whoknows, :search, :query],
         measurement: :count,
@@ -90,6 +111,12 @@ defmodule WhoknowsElixirMonolithWeb.Telemetry do
         measurement: :results,
         tags: [:language],
         description: "Number of results returned per search"
+      ),
+      counter("whoknows.search.no_results",
+        event_name: [:whoknows, :search, :no_results],
+        measurement: :count,
+        tags: [:language, :query],
+        description: "Searches that returned zero results"
       )
     ]
   end
@@ -99,7 +126,8 @@ defmodule WhoknowsElixirMonolithWeb.Telemetry do
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
       {__MODULE__, :emit_user_count, []},
-      {__MODULE__, :emit_page_count, []}
+      {__MODULE__, :emit_page_count, []},
+      {__MODULE__, :emit_pages_by_language, []}
     ]
   end
 
@@ -111,5 +139,18 @@ defmodule WhoknowsElixirMonolithWeb.Telemetry do
   def emit_page_count do
     count = WhoknowsElixirMonolith.Repo.aggregate(WhoknowsElixirMonolith.Page, :count)
     :telemetry.execute([:whoknows, :pages], %{count: count}, %{})
+  end
+
+  def emit_pages_by_language do
+    import Ecto.Query
+
+    WhoknowsElixirMonolith.Repo.all(
+      from p in WhoknowsElixirMonolith.Page,
+      group_by: p.language,
+      select: {p.language, count(p.id)}
+    )
+    |> Enum.each(fn {language, count} ->
+      :telemetry.execute([:whoknows, :pages, :by_language], %{count: count}, %{language: language})
+    end)
   end
 end

@@ -952,6 +952,377 @@
             }
           }
         ]
+      },
+      {
+        "id": 300,
+        "title": "User Registrations (Last Hour)",
+        "type": "stat",
+        "gridPos": {
+          "x": 8,
+          "y": 0,
+          "w": 4,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "increase(whoknows_user_registration[1h])",
+            "legendFormat": "New Users",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "decimals": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "green" },
+                { "value": 10, "color": "yellow" },
+                { "value": 50, "color": "orange" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 301,
+        "title": "Login Success Rate",
+        "type": "stat",
+        "gridPos": {
+          "x": 12,
+          "y": 0,
+          "w": 4,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "sum(whoknows_user_login{status=\"success\"}) / sum(whoknows_user_login) * 100",
+            "legendFormat": "Success Rate",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "red" },
+                { "value": 70, "color": "yellow" },
+                { "value": 90, "color": "green" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 302,
+        "title": "Pages by Language",
+        "type": "piechart",
+        "gridPos": {
+          "x": 16,
+          "y": 0,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "whoknows_pages_by_language",
+            "legendFormat": "{{language}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["value", "percent"]
+          },
+          "pieType": "pie",
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 303,
+        "title": "User Registration Trend",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 0,
+          "y": 60,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(whoknows_user_registration[5m]) * 300",
+            "legendFormat": "Registrations per 5min",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "list", "placement": "bottom" }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "auto"
+            },
+            "unit": "short",
+            "decimals": 1
+          }
+        }
+      },
+      {
+        "id": 304,
+        "title": "Login Attempts (Success vs Failure)",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 12,
+          "y": 60,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(whoknows_user_login{status=\"success\"}[5m]) * 300",
+            "legendFormat": "Successful Logins",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(whoknows_user_login{status=\"failure\"}[5m]) * 300",
+            "legendFormat": "Failed Logins",
+            "refId": "B"
+          }
+        ],
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "list", "placement": "bottom" }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "auto"
+            },
+            "unit": "short",
+            "decimals": 1
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byName", "options": "Successful Logins" },
+              "properties": [
+                { "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }
+              ]
+            },
+            {
+              "matcher": { "id": "byName", "options": "Failed Logins" },
+              "properties": [
+                { "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": 305,
+        "title": "Search Success Rate",
+        "type": "gauge",
+        "gridPos": {
+          "x": 0,
+          "y": 68,
+          "w": 6,
+          "h": 6
+        },
+        "targets": [
+          {
+            "expr": "sum(whoknows_search_query_count{has_results=\"true\"}) / sum(whoknows_search_query_count) * 100",
+            "legendFormat": "Success Rate",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "red" },
+                { "value": 50, "color": "yellow" },
+                { "value": 80, "color": "green" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 306,
+        "title": "Total Searches (Last Hour)",
+        "type": "stat",
+        "gridPos": {
+          "x": 6,
+          "y": 68,
+          "w": 6,
+          "h": 6
+        },
+        "targets": [
+          {
+            "expr": "increase(whoknows_search_query_count[1h])",
+            "legendFormat": "Searches",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "decimals": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "blue" },
+                { "value": 100, "color": "green" },
+                { "value": 500, "color": "yellow" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 307,
+        "title": "Top Failed Searches",
+        "type": "table",
+        "gridPos": {
+          "x": 12,
+          "y": 68,
+          "w": 12,
+          "h": 6
+        },
+        "targets": [
+          {
+            "expr": "topk(10, whoknows_search_no_results)",
+            "legendFormat": "",
+            "refId": "A",
+            "instant": true,
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "left",
+              "displayMode": "auto"
+            }
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byName", "options": "Value" },
+              "properties": [
+                { "id": "displayName", "value": "Failed Count" },
+                { "id": "custom.displayMode", "value": "color-background" },
+                { "id": "thresholds", "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "value": null, "color": "red" },
+                    { "value": 5, "color": "orange" },
+                    { "value": 10, "color": "dark-red" }
+                  ]
+                }}
+              ]
+            },
+            {
+              "matcher": { "id": "byName", "options": "query" },
+              "properties": [
+                { "id": "displayName", "value": "Search Query" }
+              ]
+            },
+            {
+              "matcher": { "id": "byName", "options": "language" },
+              "properties": [
+                { "id": "displayName", "value": "Language" }
+              ]
+            }
+          ]
+        },
+        "options": {
+          "showHeader": true,
+          "sortBy": [
+            {
+              "displayName": "Failed Count",
+              "desc": true
+            }
+          ]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true,
+                "__name__": true,
+                "instance": true,
+                "job": true
+              },
+              "indexByName": {
+                "query": 0,
+                "language": 1,
+                "Value": 2
+              }
+            }
+          }
+        ]
       }
     ]
 }
