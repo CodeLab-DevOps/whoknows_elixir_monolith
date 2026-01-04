@@ -147,7 +147,7 @@ defmodule WhoknowsElixirMonolithWeb.Telemetry do
     WhoknowsElixirMonolith.Repo.all(
       from p in WhoknowsElixirMonolith.Page,
       group_by: p.language,
-      select: {p.language, count(p.id)}
+      select: {p.language, count()}
     )
     |> Enum.each(fn {language, count} ->
       :telemetry.execute([:whoknows, :pages, :by_language], %{count: count}, %{language: language})
