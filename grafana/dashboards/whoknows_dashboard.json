@@ -3,7 +3,7 @@
   "tags": ["phoenix", "elixir", "whoknows", "production"],
   "timezone": "browser",
   "schemaVersion": 38,
-  "version": 2,
+  "version": 3,
   "refresh": "10s",
   "uid": "whoknows-app-metrics",
   "editable": true,
