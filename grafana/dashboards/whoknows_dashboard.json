@@ -1,11 +1,11 @@
 {
-  "dashboard": {
-    "title": "WhoKnows Application Metrics",
-    "tags": ["phoenix", "elixir", "whoknows", "production"],
-    "timezone": "browser",
-    "schemaVersion": 38,
-    "version": 2,
-    "refresh": "10s",
+  "title": "WhoKnows Application Metrics",
+  "tags": ["phoenix", "elixir", "whoknows", "production"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 2,
+  "refresh": "10s",
+  "uid": "whoknows-app-metrics",
     "time": {
       "from": "now-1h",
       "to": "now"
@@ -783,6 +783,4 @@
         }
       }
     ]
-  },
-  "overwrite": true
 }
