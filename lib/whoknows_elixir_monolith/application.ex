@@ -27,10 +27,24 @@ defmodule WhoknowsElixirMonolith.Application do
 
     # Emit initial metrics to ensure they appear in Prometheus immediately
     Task.start(fn ->
-      Process.sleep(1000)  # Wait for supervisor to fully start
-      WhoknowsElixirMonolithWeb.Telemetry.emit_user_count()
-      WhoknowsElixirMonolithWeb.Telemetry.emit_page_count()
-      WhoknowsElixirMonolithWeb.Telemetry.emit_pages_by_language()
+      Process.sleep(3000)  # Wait for supervisor and Prometheus exporter to fully start
+
+      # Emit metrics with error handling
+      try do
+        WhoknowsElixirMonolithWeb.Telemetry.emit_user_count()
+        WhoknowsElixirMonolithWeb.Telemetry.emit_page_count()
+        WhoknowsElixirMonolithWeb.Telemetry.emit_pages_by_language()
+
+        # Keep emitting every 5 seconds for the first minute to ensure they register
+        for _ <- 1..12 do
+          Process.sleep(5000)
+          WhoknowsElixirMonolithWeb.Telemetry.emit_user_count()
+          WhoknowsElixirMonolithWeb.Telemetry.emit_page_count()
+          WhoknowsElixirMonolithWeb.Telemetry.emit_pages_by_language()
+        end
+      rescue
+        e -> IO.puts("Error emitting initial metrics: #{inspect(e)}")
+      end
     end)
 
     result
