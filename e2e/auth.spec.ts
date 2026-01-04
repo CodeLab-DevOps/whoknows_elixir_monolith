@@ -15,10 +15,10 @@ test.describe('Authentication', () => {
     await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible();
 
     // Check for login form elements using placeholders
-    const emailInput = page.getByPlaceholder('Enter your email');
+    const usernameOrEmailInput = page.getByPlaceholder('Enter your username or email');
     const passwordInput = page.getByPlaceholder('Enter your password');
 
-    await expect(emailInput).toBeVisible();
+    await expect(usernameOrEmailInput).toBeVisible();
     await expect(passwordInput).toBeVisible();
   });
 
@@ -55,7 +55,7 @@ test.describe('Authentication', () => {
     await page.waitForTimeout(500);
 
     // The form should still be visible (indicating we didn't successfully log in)
-    await expect(page.getByPlaceholder('Enter your email')).toBeVisible();
+    await expect(page.getByPlaceholder('Enter your username or email')).toBeVisible();
   });
 
   test('should show validation errors on invalid registration', async ({ page }) => {

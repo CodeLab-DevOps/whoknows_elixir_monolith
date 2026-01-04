@@ -109,7 +109,7 @@
         },
         "targets": [
           {
-            "expr": "sum(rate(whoknows_search_query_count[1m]))",
+            "expr": "sum(rate(whoknows_search_query_count_total[1m]))",
             "legendFormat": "Searches/s",
             "refId": "A"
           }
@@ -277,7 +277,7 @@
         },
         "targets": [
           {
-            "expr": "sum by (language) (rate(whoknows_search_query_count[1m]))",
+            "expr": "sum by (language) (rate(whoknows_search_query_count_total[1m]))",
             "legendFormat": "{{language}}",
             "refId": "A"
           }
@@ -313,7 +313,7 @@
         },
         "targets": [
           {
-            "expr": "sum(whoknows_search_query_count)",
+            "expr": "sum(whoknows_search_query_count_total)",
             "legendFormat": "Total Searches",
             "refId": "A"
           }
@@ -796,7 +796,7 @@
         },
         "targets": [
           {
-            "expr": "topk(20, sum by (query, language) (whoknows_search_query_count))",
+            "expr": "topk(20, sum by (query, language) (whoknows_search_query_count_total))",
             "legendFormat": "",
             "refId": "A",
             "instant": true,
@@ -880,7 +880,7 @@
         },
         "targets": [
           {
-            "expr": "topk(20, sum by (query, language) (whoknows_search_query_count{has_results=\"false\"}))",
+            "expr": "topk(20, sum by (query, language) (whoknows_search_query_count_total{has_results=\"false\"}))",
             "legendFormat": "",
             "refId": "A",
             "instant": true,
@@ -965,7 +965,7 @@
         },
         "targets": [
           {
-            "expr": "increase(whoknows_user_registration[1h])",
+            "expr": "increase(whoknows_user_registration_total[1h])",
             "legendFormat": "New Users",
             "refId": "A"
           }
@@ -1007,7 +1007,7 @@
         },
         "targets": [
           {
-            "expr": "sum(whoknows_user_login{status=\"success\"}) / sum(whoknows_user_login) * 100",
+            "expr": "sum(whoknows_user_login_total{status=\"success\"}) / sum(whoknows_user_login_total) * 100",
             "legendFormat": "Success Rate",
             "refId": "A"
           }
@@ -1083,7 +1083,7 @@
         },
         "targets": [
           {
-            "expr": "rate(whoknows_user_registration[5m]) * 300",
+            "expr": "rate(whoknows_user_registration_total[5m]) * 300",
             "legendFormat": "Registrations per 5min",
             "refId": "A"
           }
@@ -1118,12 +1118,12 @@
         },
         "targets": [
           {
-            "expr": "rate(whoknows_user_login{status=\"success\"}[5m]) * 300",
+            "expr": "rate(whoknows_user_login_total{status=\"success\"}[5m]) * 300",
             "legendFormat": "Successful Logins",
             "refId": "A"
           },
           {
-            "expr": "rate(whoknows_user_login{status=\"failure\"}[5m]) * 300",
+            "expr": "rate(whoknows_user_login_total{status=\"failure\"}[5m]) * 300",
             "legendFormat": "Failed Logins",
             "refId": "B"
           }
@@ -1172,7 +1172,7 @@
         },
         "targets": [
           {
-            "expr": "sum(whoknows_search_query_count{has_results=\"true\"}) / sum(whoknows_search_query_count) * 100",
+            "expr": "sum(whoknows_search_query_count_total{has_results=\"true\"}) / sum(whoknows_search_query_count_total) * 100",
             "legendFormat": "Success Rate",
             "refId": "A"
           }
@@ -1210,7 +1210,7 @@
         },
         "targets": [
           {
-            "expr": "increase(whoknows_search_query_count[1h])",
+            "expr": "increase(whoknows_search_query_count_total[1h])",
             "legendFormat": "Searches",
             "refId": "A"
           }
@@ -1252,7 +1252,7 @@
         },
         "targets": [
           {
-            "expr": "topk(10, whoknows_search_no_results)",
+            "expr": "topk(10, whoknows_search_no_results_total)",
             "legendFormat": "",
             "refId": "A",
             "instant": true,

@@ -13,7 +13,7 @@ export class LoginPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.emailInput = page.getByPlaceholder('Enter your email');
+    this.emailInput = page.getByPlaceholder('Enter your username or email');
     this.passwordInput = page.getByPlaceholder('Enter your password');
     this.submitButton = page.getByRole('button', { name: 'Sign in' });
     this.rememberMeCheckbox = page.locator('input[type="checkbox"]');
