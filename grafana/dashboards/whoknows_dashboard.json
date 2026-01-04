@@ -6,11 +6,13 @@
   "version": 2,
   "refresh": "10s",
   "uid": "whoknows-app-metrics",
-    "time": {
-      "from": "now-1h",
-      "to": "now"
-    },
-    "panels": [
+  "editable": true,
+  "graphTooltip": 0,
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
       {
         "id": 100,
         "title": "Total Users",
