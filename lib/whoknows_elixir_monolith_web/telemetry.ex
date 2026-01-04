@@ -66,6 +66,18 @@ defmodule WhoknowsElixirMonolithWeb.Telemetry do
       ),
       last_value("vm.total_run_queue_lengths.io",
         description: "IO run queue length"
+      ),
+
+      # Business Metrics
+      last_value("whoknows.users.count",
+        description: "Total number of users in the system"
+      ),
+      last_value("whoknows.pages.count",
+        description: "Total number of pages in the system"
+      ),
+      counter("whoknows.search.query",
+        tags: [:language],
+        description: "Search query counter by language"
       )
     ]
   end
@@ -74,7 +86,18 @@ defmodule WhoknowsElixirMonolithWeb.Telemetry do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {WhoknowsElixirMonolithWeb, :count_users, []}
+      {__MODULE__, :emit_user_count, []},
+      {__MODULE__, :emit_page_count, []}
     ]
+  end
+
+  def emit_user_count do
+    count = WhoknowsElixirMonolith.Repo.aggregate(WhoknowsElixirMonolith.User, :count)
+    :telemetry.execute([:whoknows, :users], %{count: count}, %{})
+  end
+
+  def emit_page_count do
+    count = WhoknowsElixirMonolith.Repo.aggregate(WhoknowsElixirMonolith.Page, :count)
+    :telemetry.execute([:whoknows, :pages], %{count: count}, %{})
   end
 end

@@ -1,154 +1,641 @@
 {
   "dashboard": {
     "title": "WhoKnows Application Metrics",
-    "tags": ["phoenix", "elixir", "whoknows"],
+    "tags": ["phoenix", "elixir", "whoknows", "production"],
     "timezone": "browser",
-    "schemaVersion": 16,
-    "version": 0,
-    "refresh": "5s",
+    "schemaVersion": 38,
+    "version": 2,
+    "refresh": "10s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
     "panels": [
       {
-        "id": 1,
-        "title": "HTTP Requests by Status Code",
-        "type": "graph",
+        "id": 100,
+        "title": "Total Users",
+        "type": "stat",
         "gridPos": {
           "x": 0,
           "y": 0,
-          "w": 12,
-          "h": 8
+          "w": 4,
+          "h": 4
         },
         "targets": [
           {
-            "expr": "rate(phoenix_endpoint_stop_duration_count[5m])",
-            "legendFormat": "{{status}} - {{method}}",
+            "expr": "whoknows_users_count",
+            "legendFormat": "Users",
             "refId": "A"
           }
         ],
-        "yaxes": [
-          {
-            "format": "reqps",
-            "label": "Requests per second"
-          },
-          {
-            "format": "short"
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
           }
-        ]
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "decimals": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "blue" },
+                { "value": 100, "color": "green" },
+                { "value": 1000, "color": "yellow" }
+              ]
+            }
+          }
+        }
       },
       {
-        "id": 2,
-        "title": "Total Requests by Endpoint",
-        "type": "graph",
+        "id": 101,
+        "title": "Total Pages",
+        "type": "stat",
+        "gridPos": {
+          "x": 4,
+          "y": 0,
+          "w": 4,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "whoknows_pages_count",
+            "legendFormat": "Pages",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "decimals": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "blue" },
+                { "value": 100, "color": "green" },
+                { "value": 1000, "color": "yellow" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 102,
+        "title": "Search Rate",
+        "type": "stat",
+        "gridPos": {
+          "x": 8,
+          "y": 0,
+          "w": 4,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(whoknows_search_query_count[1m]))",
+            "legendFormat": "Searches/s",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "decimals": 2,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "green" },
+                { "value": 1, "color": "yellow" },
+                { "value": 5, "color": "orange" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 1,
+        "title": "Request Rate",
+        "type": "stat",
         "gridPos": {
           "x": 12,
           "y": 0,
-          "w": 12,
-          "h": 8
+          "w": 4,
+          "h": 4
         },
         "targets": [
           {
-            "expr": "phoenix_router_dispatch_stop_duration_count",
-            "legendFormat": "{{route}} - {{method}}",
+            "expr": "sum(rate(phoenix_endpoint_stop_duration_count[1m]))",
+            "legendFormat": "req/s",
             "refId": "A"
           }
         ],
-        "yaxes": [
-          {
-            "format": "short",
-            "label": "Total Requests"
-          },
-          {
-            "format": "short"
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
           }
-        ]
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "decimals": 2,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "green" },
+                { "value": 50, "color": "yellow" },
+                { "value": 100, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Error Rate",
+        "type": "stat",
+        "gridPos": {
+          "x": 16,
+          "y": 0,
+          "w": 4,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "100 * sum(rate(phoenix_endpoint_stop_duration_count{status=~\"4..|5..\"}[1m])) / sum(rate(phoenix_endpoint_stop_duration_count[1m]))",
+            "legendFormat": "Error Rate",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 2,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "green" },
+                { "value": 1, "color": "yellow" },
+                { "value": 5, "color": "red" }
+              ]
+            }
+          }
+        }
       },
       {
         "id": 3,
-        "title": "Database Queries per Second",
-        "type": "graph",
+        "title": "Avg Response Time",
+        "type": "stat",
+        "gridPos": {
+          "x": 20,
+          "y": 0,
+          "w": 4,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "rate(phoenix_endpoint_stop_duration_sum[1m]) / rate(phoenix_endpoint_stop_duration_count[1m]) / 1000000",
+            "legendFormat": "Avg Response",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "decimals": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "green" },
+                { "value": 200, "color": "yellow" },
+                { "value": 500, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 103,
+        "title": "Search Queries by Language",
+        "type": "timeseries",
         "gridPos": {
           "x": 0,
-          "y": 8,
+          "y": 4,
           "w": 12,
           "h": 8
         },
         "targets": [
           {
-            "expr": "rate(whoknows_elixir_monolith_repo_query_total_time_count[5m])",
+            "expr": "sum by (language) (rate(whoknows_search_query_count[1m]))",
+            "legendFormat": "{{language}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "never",
+              "spanNulls": true,
+              "stacking": { "mode": "normal" }
+            }
+          }
+        },
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "sum"] }
+        }
+      },
+      {
+        "id": 104,
+        "title": "Total Searches Over Time",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 12,
+          "y": 4,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(whoknows_search_query_count)",
+            "legendFormat": "Total Searches",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "auto",
+              "spanNulls": true
+            }
+          }
+        },
+        "options": {
+          "tooltip": { "mode": "single" },
+          "legend": { "displayMode": "list", "placement": "bottom" }
+        }
+      },
+      {
+        "id": 5,
+        "title": "HTTP Requests by Status Code",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 0,
+          "y": 12,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum by (status) (rate(phoenix_endpoint_stop_duration_count[1m]))",
+            "legendFormat": "{{status}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 10,
+              "showPoints": "never",
+              "spanNulls": true
+            }
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byRegexp", "options": "2.." },
+              "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
+            },
+            {
+              "matcher": { "id": "byRegexp", "options": "4.." },
+              "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }]
+            },
+            {
+              "matcher": { "id": "byRegexp", "options": "5.." },
+              "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
+            }
+          ]
+        },
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Response Time Distribution (p50, p95, p99)",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 12,
+          "y": 12,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(phoenix_endpoint_stop_duration_bucket[1m])) by (le)) / 1000000",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(phoenix_endpoint_stop_duration_bucket[1m])) by (le)) / 1000000",
+            "legendFormat": "p95",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(phoenix_endpoint_stop_duration_bucket[1m])) by (le)) / 1000000",
+            "legendFormat": "p99",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 0,
+              "showPoints": "never",
+              "spanNulls": true
+            }
+          }
+        },
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Requests by Endpoint",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 0,
+          "y": 20,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum by (route) (rate(phoenix_router_dispatch_stop_duration_count[1m]))",
+            "legendFormat": "{{route}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 10,
+              "showPoints": "never",
+              "spanNulls": true,
+              "stacking": { "mode": "normal" }
+            }
+          }
+        },
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Endpoint Response Times",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 12,
+          "y": 20,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum by (route) (rate(phoenix_router_dispatch_stop_duration_sum[1m])) / sum by (route) (rate(phoenix_router_dispatch_stop_duration_count[1m])) / 1000000",
+            "legendFormat": "{{route}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 0,
+              "showPoints": "never",
+              "spanNulls": true
+            }
+          }
+        },
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Database Queries per Second",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 0,
+          "y": 28,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(whoknows_elixir_monolith_repo_query_total_time_count[1m]))",
             "legendFormat": "Queries/sec",
             "refId": "A"
           }
         ],
-        "yaxes": [
-          {
-            "format": "qps",
-            "label": "Queries per second"
-          },
-          {
-            "format": "short"
+        "fieldConfig": {
+          "defaults": {
+            "unit": "qps",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "never",
+              "spanNulls": true
+            }
           }
-        ]
+        },
+        "options": {
+          "tooltip": { "mode": "single" },
+          "legend": { "displayMode": "list", "placement": "bottom" }
+        }
       },
       {
-        "id": 4,
-        "title": "Total Database Query Time",
-        "type": "graph",
+        "id": 10,
+        "title": "Database Query Duration",
+        "type": "timeseries",
         "gridPos": {
           "x": 12,
-          "y": 8,
+          "y": 28,
           "w": 12,
           "h": 8
         },
         "targets": [
           {
-            "expr": "rate(whoknows_elixir_monolith_repo_query_total_time_sum[5m])",
-            "legendFormat": "Query time (ms/sec)",
+            "expr": "rate(whoknows_elixir_monolith_repo_query_total_time_sum[1m]) / rate(whoknows_elixir_monolith_repo_query_total_time_count[1m]) / 1000",
+            "legendFormat": "Avg Query Time",
             "refId": "A"
           }
         ],
-        "yaxes": [
-          {
-            "format": "ms",
-            "label": "Milliseconds"
-          },
-          {
-            "format": "short"
+        "fieldConfig": {
+          "defaults": {
+            "unit": "µs",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "never",
+              "spanNulls": true
+            }
           }
-        ]
+        },
+        "options": {
+          "tooltip": { "mode": "single" },
+          "legend": { "displayMode": "list", "placement": "bottom" }
+        }
       },
       {
-        "id": 5,
-        "title": "VM Memory Usage",
-        "type": "graph",
+        "id": 11,
+        "title": "VM Memory Breakdown",
+        "type": "timeseries",
         "gridPos": {
           "x": 0,
-          "y": 16,
+          "y": 36,
           "w": 8,
           "h": 8
         },
         "targets": [
           {
-            "expr": "vm_memory_total",
-            "legendFormat": "Memory (KB)",
+            "expr": "vm_memory_total / 1024 / 1024",
+            "legendFormat": "Total",
             "refId": "A"
-          }
-        ],
-        "yaxes": [
-          {
-            "format": "deckbytes",
-            "label": "Memory"
           },
           {
-            "format": "short"
+            "expr": "vm_memory_processes_used / 1024 / 1024",
+            "legendFormat": "Processes",
+            "refId": "B"
+          },
+          {
+            "expr": "vm_memory_system / 1024 / 1024",
+            "legendFormat": "System",
+            "refId": "C"
+          },
+          {
+            "expr": "vm_memory_atom_used / 1024 / 1024",
+            "legendFormat": "Atoms",
+            "refId": "D"
+          },
+          {
+            "expr": "vm_memory_binary / 1024 / 1024",
+            "legendFormat": "Binary",
+            "refId": "E"
+          },
+          {
+            "expr": "vm_memory_ets / 1024 / 1024",
+            "legendFormat": "ETS",
+            "refId": "F"
           }
-        ]
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "mbytes",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 0,
+              "showPoints": "never",
+              "spanNulls": true
+            }
+          }
+        },
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
+        }
       },
       {
-        "id": 6,
+        "id": 12,
         "title": "VM Run Queue Lengths",
-        "type": "graph",
+        "type": "timeseries",
         "gridPos": {
           "x": 8,
-          "y": 16,
+          "y": 36,
           "w": 8,
           "h": 8
         },
@@ -169,48 +656,133 @@
             "refId": "C"
           }
         ],
-        "yaxes": [
-          {
-            "format": "short",
-            "label": "Queue Length"
-          },
-          {
-            "format": "short"
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 10,
+              "showPoints": "never",
+              "spanNulls": true
+            }
           }
-        ]
+        },
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
+        }
       },
       {
-        "id": 7,
-        "title": "Error Rate (4xx/5xx)",
-        "type": "graph",
+        "id": 13,
+        "title": "Process Count",
+        "type": "timeseries",
         "gridPos": {
           "x": 16,
-          "y": 16,
+          "y": 36,
           "w": 8,
           "h": 8
         },
         "targets": [
           {
-            "expr": "rate(phoenix_endpoint_stop_duration_count{status=~\"4..\"}[5m])",
-            "legendFormat": "4xx - {{status}}",
+            "expr": "vm_process_count",
+            "legendFormat": "Processes",
             "refId": "A"
-          },
-          {
-            "expr": "rate(phoenix_endpoint_stop_duration_count{status=~\"5..\"}[5m])",
-            "legendFormat": "5xx - {{status}}",
-            "refId": "B"
           }
         ],
-        "yaxes": [
-          {
-            "format": "reqps",
-            "label": "Errors per second"
-          },
-          {
-            "format": "short"
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "never",
+              "spanNulls": true
+            }
           }
-        ]
+        },
+        "options": {
+          "tooltip": { "mode": "single" },
+          "legend": { "displayMode": "list", "placement": "bottom" }
+        }
+      },
+      {
+        "id": 15,
+        "title": "Top 10 Slowest Endpoints",
+        "type": "bargauge",
+        "gridPos": {
+          "x": 0,
+          "y": 44,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "topk(10, sum by (route) (rate(phoenix_router_dispatch_stop_duration_sum[5m])) / sum by (route) (rate(phoenix_router_dispatch_stop_duration_count[5m])) / 1000000)",
+            "legendFormat": "{{route}}",
+            "refId": "A",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "green" },
+                { "value": 100, "color": "yellow" },
+                { "value": 300, "color": "red" }
+              ]
+            }
+          }
+        },
+        "options": {
+          "orientation": "horizontal",
+          "displayMode": "gradient",
+          "showUnfilled": true
+        }
+      },
+      {
+        "id": 14,
+        "title": "Error Rate by Endpoint",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 12,
+          "y": 44,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum by (route) (rate(phoenix_endpoint_stop_duration_count{status=~\"4..|5..\"}[1m]))",
+            "legendFormat": "{{route}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 10,
+              "showPoints": "never",
+              "spanNulls": true,
+              "stacking": { "mode": "normal" }
+            }
+          }
+        },
+        "options": {
+          "tooltip": { "mode": "multi", "sort": "desc" },
+          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
+        }
       }
     ]
-  }
+  },
+  "overwrite": true
 }

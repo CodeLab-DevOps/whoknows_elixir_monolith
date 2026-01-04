@@ -12,6 +12,8 @@ defmodule WhoknowsElixirMonolithWeb.Api.SearchController do
       if query == "" do
         []
       else
+        # Emit telemetry event for search tracking
+        :telemetry.execute([:whoknows, :search, :query], %{count: 1}, %{language: language, query: query})
         search_pages(query, language)
       end
 
