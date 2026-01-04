@@ -73,6 +73,24 @@ defmodule WhoknowsElixirMonolith.Accounts do
   end
 
   @doc """
+  Gets a user by username (name field) and password.
+
+  ## Examples
+
+      iex> get_user_by_username_and_password("john_doe", "correct_password")
+      %User{}
+
+      iex> get_user_by_username_and_password("john_doe", "invalid_password")
+      nil
+
+  """
+  def get_user_by_username_and_password(username, password)
+      when is_binary(username) and is_binary(password) do
+    user = Repo.get_by(User, name: username)
+    if User.valid_password?(user, password), do: user
+  end
+
+  @doc """
   Creates a user.
 
   ## Examples

@@ -48,8 +48,26 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
     end
   end
 
-  def login(conn, %{"email" => email, "password" => password}) do
-    if user = Accounts.get_user_by_email_and_password(email, password) do
+  def login(conn, params) do
+    # Support both email and username for login
+    # The "username" field can contain either username or email
+    identifier = params["username"] || params["email"]
+    password = params["password"]
+
+    user = if is_binary(identifier) and is_binary(password) do
+      # Try email first (if it looks like an email), then try username
+      if String.contains?(identifier, "@") do
+        Accounts.get_user_by_email_and_password(identifier, password)
+      else
+        # Try username, if that fails, try as email anyway
+        Accounts.get_user_by_username_and_password(identifier, password) ||
+        Accounts.get_user_by_email_and_password(identifier, password)
+      end
+    else
+      nil
+    end
+
+    if user do
       # Track successful login
       :telemetry.execute([:whoknows, :user, :login], %{count: 1}, %{status: "success"})
 
@@ -67,7 +85,7 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
       conn
       |> put_status(:unprocessable_entity)
       |> json(%{
-        detail: [%{loc: ["password"], msg: "Invalid email or password", type: "value_error"}]
+        detail: [%{loc: ["password"], msg: "Invalid username/email or password", type: "value_error"}]
       })
     end
   end
