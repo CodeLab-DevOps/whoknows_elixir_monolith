@@ -783,6 +783,175 @@
           "tooltip": { "mode": "multi", "sort": "desc" },
           "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
         }
+      },
+      {
+        "id": 200,
+        "title": "Top Search Queries",
+        "type": "table",
+        "gridPos": {
+          "x": 0,
+          "y": 52,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "topk(20, sum by (query, language) (whoknows_search_query_count))",
+            "legendFormat": "",
+            "refId": "A",
+            "instant": true,
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "left",
+              "displayMode": "auto"
+            }
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byName", "options": "Value" },
+              "properties": [
+                { "id": "displayName", "value": "Search Count" },
+                { "id": "custom.displayMode", "value": "color-background" },
+                { "id": "thresholds", "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "value": null, "color": "green" },
+                    { "value": 5, "color": "yellow" },
+                    { "value": 10, "color": "orange" }
+                  ]
+                }}
+              ]
+            },
+            {
+              "matcher": { "id": "byName", "options": "query" },
+              "properties": [
+                { "id": "displayName", "value": "Search Term" }
+              ]
+            },
+            {
+              "matcher": { "id": "byName", "options": "language" },
+              "properties": [
+                { "id": "displayName", "value": "Language" }
+              ]
+            }
+          ]
+        },
+        "options": {
+          "showHeader": true,
+          "sortBy": [
+            {
+              "displayName": "Search Count",
+              "desc": true
+            }
+          ]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true,
+                "__name__": true,
+                "instance": true,
+                "job": true
+              },
+              "indexByName": {
+                "query": 0,
+                "language": 1,
+                "Value": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 201,
+        "title": "Searches With No Results",
+        "type": "table",
+        "gridPos": {
+          "x": 12,
+          "y": 52,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "topk(20, sum by (query, language) (whoknows_search_query_count{has_results=\"false\"}))",
+            "legendFormat": "",
+            "refId": "A",
+            "instant": true,
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "left",
+              "displayMode": "auto"
+            }
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byName", "options": "Value" },
+              "properties": [
+                { "id": "displayName", "value": "Failed Search Count" },
+                { "id": "custom.displayMode", "value": "color-background" },
+                { "id": "thresholds", "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "value": null, "color": "red" },
+                    { "value": 3, "color": "orange" },
+                    { "value": 10, "color": "dark-red" }
+                  ]
+                }}
+              ]
+            },
+            {
+              "matcher": { "id": "byName", "options": "query" },
+              "properties": [
+                { "id": "displayName", "value": "Search Term (No Results)" }
+              ]
+            },
+            {
+              "matcher": { "id": "byName", "options": "language" },
+              "properties": [
+                { "id": "displayName", "value": "Language" }
+              ]
+            }
+          ]
+        },
+        "options": {
+          "showHeader": true,
+          "sortBy": [
+            {
+              "displayName": "Failed Search Count",
+              "desc": true
+            }
+          ]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true,
+                "__name__": true,
+                "instance": true,
+                "job": true,
+                "has_results": true
+              },
+              "indexByName": {
+                "query": 0,
+                "language": 1,
+                "Value": 2
+              }
+            }
+          }
+        ]
       }
     ]
 }

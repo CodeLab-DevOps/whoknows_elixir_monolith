@@ -70,14 +70,26 @@ defmodule WhoknowsElixirMonolithWeb.Telemetry do
 
       # Business Metrics
       last_value("whoknows.users.count",
+        event_name: [:whoknows, :users],
+        measurement: :count,
         description: "Total number of users in the system"
       ),
       last_value("whoknows.pages.count",
+        event_name: [:whoknows, :pages],
+        measurement: :count,
         description: "Total number of pages in the system"
       ),
-      counter("whoknows.search.query",
+      counter("whoknows.search.query.count",
+        event_name: [:whoknows, :search, :query],
+        measurement: :count,
+        tags: [:language, :query, :has_results],
+        description: "Search query counter by language and search term"
+      ),
+      summary("whoknows.search.results",
+        event_name: [:whoknows, :search, :query],
+        measurement: :results,
         tags: [:language],
-        description: "Search query counter by language"
+        description: "Number of results returned per search"
       )
     ]
   end
