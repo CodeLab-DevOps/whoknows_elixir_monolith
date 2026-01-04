@@ -303,11 +303,11 @@ jobs:
             export SECRET_KEY_BASE="${{ env.SECRET_KEY_BASE }}"
             export PHX_HOST="${{ env.PHX_HOST }}"
 
-            # Stop old containers (use 'docker compose' V2 syntax)
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml down || true
+            # Stop old containers and remove images (use 'docker compose' V2 syntax)
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down --rmi local || true
 
-            # Start new containers (nginx, certbot, app, prometheus, grafana)
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            # Start new containers with forced recreation (nginx, certbot, app, prometheus, grafana)
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --pull always
 
             # Wait for services to be healthy
             echo "Waiting for services to start..."
