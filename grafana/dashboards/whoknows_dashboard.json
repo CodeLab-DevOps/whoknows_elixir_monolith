@@ -1,1328 +1,1004 @@
 {
-  "title": "WhoKnows Application Metrics",
-  "tags": ["phoenix", "elixir", "whoknows", "production"],
-  "timezone": "browser",
-  "schemaVersion": 38,
-  "version": 3,
-  "refresh": "10s",
-  "uid": "whoknows-app-metrics",
-  "editable": true,
-  "graphTooltip": 0,
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "panels": [
+  "annotations": {
+    "list": [
       {
-        "id": 100,
-        "title": "Total Users",
-        "type": "stat",
-        "gridPos": {
-          "x": 0,
-          "y": 0,
-          "w": 4,
-          "h": 4
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
         },
-        "targets": [
-          {
-            "expr": "whoknows_users_count",
-            "legendFormat": "Users",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "graphMode": "area",
-          "colorMode": "value",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "decimals": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "blue" },
-                { "value": 100, "color": "green" },
-                { "value": 1000, "color": "yellow" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 101,
-        "title": "Total Pages",
-        "type": "stat",
-        "gridPos": {
-          "x": 4,
-          "y": 0,
-          "w": 4,
-          "h": 4
-        },
-        "targets": [
-          {
-            "expr": "whoknows_pages_count",
-            "legendFormat": "Pages",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "graphMode": "area",
-          "colorMode": "value",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "decimals": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "blue" },
-                { "value": 100, "color": "green" },
-                { "value": 1000, "color": "yellow" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 102,
-        "title": "Search Rate",
-        "type": "stat",
-        "gridPos": {
-          "x": 8,
-          "y": 0,
-          "w": 4,
-          "h": 4
-        },
-        "targets": [
-          {
-            "expr": "sum(rate(whoknows_search_query_count_total[1m]))",
-            "legendFormat": "Searches/s",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "graphMode": "area",
-          "colorMode": "value",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "ops",
-            "decimals": 2,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "green" },
-                { "value": 1, "color": "yellow" },
-                { "value": 5, "color": "orange" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 1,
-        "title": "Request Rate",
-        "type": "stat",
-        "gridPos": {
-          "x": 12,
-          "y": 0,
-          "w": 4,
-          "h": 4
-        },
-        "targets": [
-          {
-            "expr": "sum(rate(phoenix_endpoint_stop_duration_count[1m]))",
-            "legendFormat": "req/s",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "graphMode": "area",
-          "colorMode": "value",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "reqps",
-            "decimals": 2,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "green" },
-                { "value": 50, "color": "yellow" },
-                { "value": 100, "color": "red" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 2,
-        "title": "Error Rate",
-        "type": "stat",
-        "gridPos": {
-          "x": 16,
-          "y": 0,
-          "w": 4,
-          "h": 4
-        },
-        "targets": [
-          {
-            "expr": "100 * sum(rate(phoenix_endpoint_stop_duration_count{status=~\"4..|5..\"}[1m])) / sum(rate(phoenix_endpoint_stop_duration_count[1m]))",
-            "legendFormat": "Error Rate",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "graphMode": "area",
-          "colorMode": "value",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent",
-            "decimals": 2,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "green" },
-                { "value": 1, "color": "yellow" },
-                { "value": 5, "color": "red" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 3,
-        "title": "Avg Response Time",
-        "type": "stat",
-        "gridPos": {
-          "x": 20,
-          "y": 0,
-          "w": 4,
-          "h": 4
-        },
-        "targets": [
-          {
-            "expr": "rate(phoenix_endpoint_stop_duration_sum[1m]) / rate(phoenix_endpoint_stop_duration_count[1m]) / 1000000",
-            "legendFormat": "Avg Response",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "graphMode": "area",
-          "colorMode": "value",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "ms",
-            "decimals": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "green" },
-                { "value": 200, "color": "yellow" },
-                { "value": 500, "color": "red" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 103,
-        "title": "Search Queries by Language",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 0,
-          "y": 4,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "sum by (language) (rate(whoknows_search_query_count_total[1m]))",
-            "legendFormat": "{{language}}",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "ops",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 20,
-              "showPoints": "never",
-              "spanNulls": true,
-              "stacking": { "mode": "normal" }
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "sum"] }
-        }
-      },
-      {
-        "id": 104,
-        "title": "Total Searches Over Time",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 12,
-          "y": 4,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "sum(whoknows_search_query_count_total)",
-            "legendFormat": "Total Searches",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 20,
-              "showPoints": "auto",
-              "spanNulls": true
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "single" },
-          "legend": { "displayMode": "list", "placement": "bottom" }
-        }
-      },
-      {
-        "id": 5,
-        "title": "HTTP Requests by Status Code",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 0,
-          "y": 12,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "sum by (status) (rate(phoenix_endpoint_stop_duration_count[1m]))",
-            "legendFormat": "{{status}}",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "reqps",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 10,
-              "showPoints": "never",
-              "spanNulls": true
-            }
-          },
-          "overrides": [
-            {
-              "matcher": { "id": "byRegexp", "options": "2.." },
-              "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
-            },
-            {
-              "matcher": { "id": "byRegexp", "options": "4.." },
-              "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }]
-            },
-            {
-              "matcher": { "id": "byRegexp", "options": "5.." },
-              "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
-            }
-          ]
-        },
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
-        }
-      },
-      {
-        "id": 6,
-        "title": "Response Time Distribution (p50, p95, p99)",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 12,
-          "y": 12,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.50, sum(rate(phoenix_endpoint_stop_duration_bucket[1m])) by (le)) / 1000000",
-            "legendFormat": "p50",
-            "refId": "A"
-          },
-          {
-            "expr": "histogram_quantile(0.95, sum(rate(phoenix_endpoint_stop_duration_bucket[1m])) by (le)) / 1000000",
-            "legendFormat": "p95",
-            "refId": "B"
-          },
-          {
-            "expr": "histogram_quantile(0.99, sum(rate(phoenix_endpoint_stop_duration_bucket[1m])) by (le)) / 1000000",
-            "legendFormat": "p99",
-            "refId": "C"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "ms",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 0,
-              "showPoints": "never",
-              "spanNulls": true
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
-        }
-      },
-      {
-        "id": 7,
-        "title": "Requests by Endpoint",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 0,
-          "y": 20,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "sum by (route) (rate(phoenix_router_dispatch_stop_duration_count[1m]))",
-            "legendFormat": "{{route}}",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "reqps",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 10,
-              "showPoints": "never",
-              "spanNulls": true,
-              "stacking": { "mode": "normal" }
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
-        }
-      },
-      {
-        "id": 8,
-        "title": "Endpoint Response Times",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 12,
-          "y": 20,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "sum by (route) (rate(phoenix_router_dispatch_stop_duration_sum[1m])) / sum by (route) (rate(phoenix_router_dispatch_stop_duration_count[1m])) / 1000000",
-            "legendFormat": "{{route}}",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "ms",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 0,
-              "showPoints": "never",
-              "spanNulls": true
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
-        }
-      },
-      {
-        "id": 9,
-        "title": "Database Queries per Second",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 0,
-          "y": 28,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "sum(rate(whoknows_elixir_monolith_repo_query_total_time_count[1m]))",
-            "legendFormat": "Queries/sec",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "qps",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 20,
-              "showPoints": "never",
-              "spanNulls": true
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "single" },
-          "legend": { "displayMode": "list", "placement": "bottom" }
-        }
-      },
-      {
-        "id": 10,
-        "title": "Database Query Duration",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 12,
-          "y": 28,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "rate(whoknows_elixir_monolith_repo_query_total_time_sum[1m]) / rate(whoknows_elixir_monolith_repo_query_total_time_count[1m]) / 1000",
-            "legendFormat": "Avg Query Time",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "µs",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 20,
-              "showPoints": "never",
-              "spanNulls": true
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "single" },
-          "legend": { "displayMode": "list", "placement": "bottom" }
-        }
-      },
-      {
-        "id": 11,
-        "title": "VM Memory Breakdown",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 0,
-          "y": 36,
-          "w": 8,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "vm_memory_total / 1024 / 1024",
-            "legendFormat": "Total",
-            "refId": "A"
-          },
-          {
-            "expr": "vm_memory_processes_used / 1024 / 1024",
-            "legendFormat": "Processes",
-            "refId": "B"
-          },
-          {
-            "expr": "vm_memory_system / 1024 / 1024",
-            "legendFormat": "System",
-            "refId": "C"
-          },
-          {
-            "expr": "vm_memory_atom_used / 1024 / 1024",
-            "legendFormat": "Atoms",
-            "refId": "D"
-          },
-          {
-            "expr": "vm_memory_binary / 1024 / 1024",
-            "legendFormat": "Binary",
-            "refId": "E"
-          },
-          {
-            "expr": "vm_memory_ets / 1024 / 1024",
-            "legendFormat": "ETS",
-            "refId": "F"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "mbytes",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 0,
-              "showPoints": "never",
-              "spanNulls": true
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
-        }
-      },
-      {
-        "id": 12,
-        "title": "VM Run Queue Lengths",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 8,
-          "y": 36,
-          "w": 8,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "vm_total_run_queue_lengths_total",
-            "legendFormat": "Total",
-            "refId": "A"
-          },
-          {
-            "expr": "vm_total_run_queue_lengths_cpu",
-            "legendFormat": "CPU",
-            "refId": "B"
-          },
-          {
-            "expr": "vm_total_run_queue_lengths_io",
-            "legendFormat": "IO",
-            "refId": "C"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 10,
-              "showPoints": "never",
-              "spanNulls": true
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
-        }
-      },
-      {
-        "id": 13,
-        "title": "Process Count",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 16,
-          "y": 36,
-          "w": 8,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "vm_process_count",
-            "legendFormat": "Processes",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 20,
-              "showPoints": "never",
-              "spanNulls": true
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "single" },
-          "legend": { "displayMode": "list", "placement": "bottom" }
-        }
-      },
-      {
-        "id": 15,
-        "title": "Top 10 Slowest Endpoints",
-        "type": "bargauge",
-        "gridPos": {
-          "x": 0,
-          "y": 44,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "topk(10, sum by (route) (rate(phoenix_router_dispatch_stop_duration_sum[5m])) / sum by (route) (rate(phoenix_router_dispatch_stop_duration_count[5m])) / 1000000)",
-            "legendFormat": "{{route}}",
-            "refId": "A",
-            "instant": true
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "ms",
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "green" },
-                { "value": 100, "color": "yellow" },
-                { "value": 300, "color": "red" }
-              ]
-            }
-          }
-        },
-        "options": {
-          "orientation": "horizontal",
-          "displayMode": "gradient",
-          "showUnfilled": true
-        }
-      },
-      {
-        "id": 14,
-        "title": "Error Rate by Endpoint",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 12,
-          "y": 44,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "sum by (route) (rate(phoenix_endpoint_stop_duration_count{status=~\"4..|5..\"}[1m]))",
-            "legendFormat": "{{route}}",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "reqps",
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 10,
-              "showPoints": "never",
-              "spanNulls": true,
-              "stacking": { "mode": "normal" }
-            }
-          }
-        },
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] }
-        }
-      },
-      {
-        "id": 200,
-        "title": "Top Search Queries",
-        "type": "table",
-        "gridPos": {
-          "x": 0,
-          "y": 52,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "topk(20, sum by (query, language) (whoknows_search_query_count_total))",
-            "legendFormat": "",
-            "refId": "A",
-            "instant": true,
-            "format": "table"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "align": "left",
-              "displayMode": "auto"
-            }
-          },
-          "overrides": [
-            {
-              "matcher": { "id": "byName", "options": "Value" },
-              "properties": [
-                { "id": "displayName", "value": "Search Count" },
-                { "id": "custom.displayMode", "value": "color-background" },
-                { "id": "thresholds", "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    { "value": null, "color": "green" },
-                    { "value": 5, "color": "yellow" },
-                    { "value": 10, "color": "orange" }
-                  ]
-                }}
-              ]
-            },
-            {
-              "matcher": { "id": "byName", "options": "query" },
-              "properties": [
-                { "id": "displayName", "value": "Search Term" }
-              ]
-            },
-            {
-              "matcher": { "id": "byName", "options": "language" },
-              "properties": [
-                { "id": "displayName", "value": "Language" }
-              ]
-            }
-          ]
-        },
-        "options": {
-          "showHeader": true,
-          "sortBy": [
-            {
-              "displayName": "Search Count",
-              "desc": true
-            }
-          ]
-        },
-        "transformations": [
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {
-                "Time": true,
-                "__name__": true,
-                "instance": true,
-                "job": true
-              },
-              "indexByName": {
-                "query": 0,
-                "language": 1,
-                "Value": 2
-              }
-            }
-          }
-        ]
-      },
-      {
-        "id": 201,
-        "title": "Searches With No Results",
-        "type": "table",
-        "gridPos": {
-          "x": 12,
-          "y": 52,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "topk(20, sum by (query, language) (whoknows_search_query_count_total{has_results=\"false\"}))",
-            "legendFormat": "",
-            "refId": "A",
-            "instant": true,
-            "format": "table"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "align": "left",
-              "displayMode": "auto"
-            }
-          },
-          "overrides": [
-            {
-              "matcher": { "id": "byName", "options": "Value" },
-              "properties": [
-                { "id": "displayName", "value": "Failed Search Count" },
-                { "id": "custom.displayMode", "value": "color-background" },
-                { "id": "thresholds", "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    { "value": null, "color": "red" },
-                    { "value": 3, "color": "orange" },
-                    { "value": 10, "color": "dark-red" }
-                  ]
-                }}
-              ]
-            },
-            {
-              "matcher": { "id": "byName", "options": "query" },
-              "properties": [
-                { "id": "displayName", "value": "Search Term (No Results)" }
-              ]
-            },
-            {
-              "matcher": { "id": "byName", "options": "language" },
-              "properties": [
-                { "id": "displayName", "value": "Language" }
-              ]
-            }
-          ]
-        },
-        "options": {
-          "showHeader": true,
-          "sortBy": [
-            {
-              "displayName": "Failed Search Count",
-              "desc": true
-            }
-          ]
-        },
-        "transformations": [
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {
-                "Time": true,
-                "__name__": true,
-                "instance": true,
-                "job": true,
-                "has_results": true
-              },
-              "indexByName": {
-                "query": 0,
-                "language": 1,
-                "Value": 2
-              }
-            }
-          }
-        ]
-      },
-      {
-        "id": 300,
-        "title": "User Registrations (Last Hour)",
-        "type": "stat",
-        "gridPos": {
-          "x": 8,
-          "y": 0,
-          "w": 4,
-          "h": 4
-        },
-        "targets": [
-          {
-            "expr": "increase(whoknows_user_registration_total[1h])",
-            "legendFormat": "New Users",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "graphMode": "area",
-          "colorMode": "value",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "decimals": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "green" },
-                { "value": 10, "color": "yellow" },
-                { "value": 50, "color": "orange" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 301,
-        "title": "Login Success Rate",
-        "type": "stat",
-        "gridPos": {
-          "x": 12,
-          "y": 0,
-          "w": 4,
-          "h": 4
-        },
-        "targets": [
-          {
-            "expr": "sum(whoknows_user_login_total{status=\"success\"}) / sum(whoknows_user_login_total) * 100",
-            "legendFormat": "Success Rate",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "graphMode": "area",
-          "colorMode": "value",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent",
-            "decimals": 1,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "red" },
-                { "value": 70, "color": "yellow" },
-                { "value": 90, "color": "green" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 302,
-        "title": "Pages by Language",
-        "type": "piechart",
-        "gridPos": {
-          "x": 16,
-          "y": 0,
-          "w": 8,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "whoknows_pages_by_language",
-            "legendFormat": "{{language}}",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "legend": {
-            "displayMode": "table",
-            "placement": "right",
-            "values": ["value", "percent"]
-          },
-          "pieType": "pie",
-          "tooltip": {
-            "mode": "single"
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short"
-          }
-        }
-      },
-      {
-        "id": 303,
-        "title": "User Registration Trend",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 0,
-          "y": 60,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "rate(whoknows_user_registration_total[5m]) * 300",
-            "legendFormat": "Registrations per 5min",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "list", "placement": "bottom" }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 20,
-              "showPoints": "auto"
-            },
-            "unit": "short",
-            "decimals": 1
-          }
-        }
-      },
-      {
-        "id": 304,
-        "title": "Login Attempts (Success vs Failure)",
-        "type": "timeseries",
-        "gridPos": {
-          "x": 12,
-          "y": 60,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "rate(whoknows_user_login_total{status=\"success\"}[5m]) * 300",
-            "legendFormat": "Successful Logins",
-            "refId": "A"
-          },
-          {
-            "expr": "rate(whoknows_user_login_total{status=\"failure\"}[5m]) * 300",
-            "legendFormat": "Failed Logins",
-            "refId": "B"
-          }
-        ],
-        "options": {
-          "tooltip": { "mode": "multi", "sort": "desc" },
-          "legend": { "displayMode": "list", "placement": "bottom" }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "lineWidth": 2,
-              "fillOpacity": 20,
-              "showPoints": "auto"
-            },
-            "unit": "short",
-            "decimals": 1
-          },
-          "overrides": [
-            {
-              "matcher": { "id": "byName", "options": "Successful Logins" },
-              "properties": [
-                { "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }
-              ]
-            },
-            {
-              "matcher": { "id": "byName", "options": "Failed Logins" },
-              "properties": [
-                { "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "id": 305,
-        "title": "Search Success Rate",
-        "type": "gauge",
-        "gridPos": {
-          "x": 0,
-          "y": 68,
-          "w": 6,
-          "h": 6
-        },
-        "targets": [
-          {
-            "expr": "sum(whoknows_search_query_count_total{has_results=\"true\"}) / sum(whoknows_search_query_count_total) * 100",
-            "legendFormat": "Success Rate",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "orientation": "auto",
-          "showThresholdLabels": false,
-          "showThresholdMarkers": true
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent",
-            "min": 0,
-            "max": 100,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "red" },
-                { "value": 50, "color": "yellow" },
-                { "value": 80, "color": "green" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 306,
-        "title": "Total Searches (Last Hour)",
-        "type": "stat",
-        "gridPos": {
-          "x": 6,
-          "y": 68,
-          "w": 6,
-          "h": 6
-        },
-        "targets": [
-          {
-            "expr": "increase(whoknows_search_query_count_total[1h])",
-            "legendFormat": "Searches",
-            "refId": "A"
-          }
-        ],
-        "options": {
-          "graphMode": "area",
-          "colorMode": "value",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "decimals": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": null, "color": "blue" },
-                { "value": 100, "color": "green" },
-                { "value": 500, "color": "yellow" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 307,
-        "title": "Top Failed Searches",
-        "type": "table",
-        "gridPos": {
-          "x": 12,
-          "y": 68,
-          "w": 12,
-          "h": 6
-        },
-        "targets": [
-          {
-            "expr": "topk(10, whoknows_search_no_results_total)",
-            "legendFormat": "",
-            "refId": "A",
-            "instant": true,
-            "format": "table"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "align": "left",
-              "displayMode": "auto"
-            }
-          },
-          "overrides": [
-            {
-              "matcher": { "id": "byName", "options": "Value" },
-              "properties": [
-                { "id": "displayName", "value": "Failed Count" },
-                { "id": "custom.displayMode", "value": "color-background" },
-                { "id": "thresholds", "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    { "value": null, "color": "red" },
-                    { "value": 5, "color": "orange" },
-                    { "value": 10, "color": "dark-red" }
-                  ]
-                }}
-              ]
-            },
-            {
-              "matcher": { "id": "byName", "options": "query" },
-              "properties": [
-                { "id": "displayName", "value": "Search Query" }
-              ]
-            },
-            {
-              "matcher": { "id": "byName", "options": "language" },
-              "properties": [
-                { "id": "displayName", "value": "Language" }
-              ]
-            }
-          ]
-        },
-        "options": {
-          "showHeader": true,
-          "sortBy": [
-            {
-              "displayName": "Failed Count",
-              "desc": true
-            }
-          ]
-        },
-        "transformations": [
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {
-                "Time": true,
-                "__name__": true,
-                "instance": true,
-                "job": true
-              },
-              "indexByName": {
-                "query": 0,
-                "language": 1,
-                "Value": 2
-              }
-            }
-          }
-        ]
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
       }
     ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 5,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "whoknows_users_count + whoknows_user_registration",
+          "legendFormat": "Users",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Users",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(whoknows_user_registration[1h]))",
+          "legendFormat": "New Users",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "New Registrations (Last Hour)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "100 * (sum(whoknows_user_login{status=\"success\"}) or vector(0)) / (sum(whoknows_user_login) or vector(1))",
+          "legendFormat": "Success Rate",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Login Success Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "whoknows_pages_count",
+          "legendFormat": "Pages",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Pages",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Successful Logins"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed Logins"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "rate(whoknows_user_login{status=\"success\"}[5m]) * 300",
+          "legendFormat": "Successful Logins",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "rate(whoknows_user_login_total{status=\"failure\"}[5m]) * 300",
+          "legendFormat": "Failed Logins",
+          "refId": "B"
+        }
+      ],
+      "title": "Login Attempts Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "rate(whoknows_user_registration[5m]) * 300",
+          "legendFormat": "Registrations per 5min",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "User Registrations Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 12
+      },
+      "id": 7,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "100 * (sum(whoknows_search_query_count{has_results=\"true\"}) or vector(0)) / (sum(whoknows_search_query_count) or vector(1))",
+          "legendFormat": "Success Rate",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Search Success Rate",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 12
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(increase(whoknows_search_query_count[1h]))",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Searches",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Searches (Last Hour)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 12
+      },
+      "id": 9,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "whoknows_pages_by_language",
+          "legendFormat": "{{language}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Pages by Language",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "query"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Search Query"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "language"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Language"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Failed Count"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "topk(10, sum by (query, language) (whoknows_search_no_results))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed Searches (No Results)",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Searches with Results"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Searches with No Results"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "rate(whoknows_search_query_count{has_results=\"true\"}[5m]) * 300",
+          "legendFormat": "Searches with Results",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "rate(whoknows_search_query_count_total{has_results=\"false\"}[5m]) * 300",
+          "legendFormat": "Searches with No Results",
+          "refId": "B"
+        }
+      ],
+      "title": "Search Results Distribution",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 42,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "WhoKnows Business Metrics",
+  "uid": "whoknows-business",
+  "version": 12
 }
