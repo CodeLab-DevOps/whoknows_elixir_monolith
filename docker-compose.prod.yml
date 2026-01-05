@@ -1,0 +1,20 @@
+version: '3.8'
+
+# Production override for docker-compose.yml
+# This file overrides the 'build' directive to use pre-built images from GitHub Container Registry
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  app:
+    # Override the build directive - use pre-built image from GHCR
+    build: null
+    image: ${IMAGE_TAG:-ghcr.io/codelab-devops/whoknows_elixir_monolith:latest}
+
+    # Production environment variables
+    environment:
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE:?SECRET_KEY_BASE must be set}
+      - PHX_HOST=${PHX_HOST:?PHX_HOST must be set}
+      - PORT=4000
+      - DATABASE_PATH=/app/priv/repo/prod.db
+      - MIX_ENV=prod
+      - PHX_SERVER=true

@@ -34,6 +34,13 @@ whoknows_elixir_monolith-*.tar
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/
+/node_modules/
+package-lock.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
 
 # IDE files (TILFØJET)
 .idea/
@@ -44,6 +51,9 @@ npm-debug.log
 # Environment variables (TILFØJET)
 .env
 .env.*
+
+# Act secrets file
+.secrets
 
 # SQLite databases
 *.db

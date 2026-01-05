@@ -8,23 +8,30 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
       redirect(conn, to: ~p"/")
     else
       # Handle both nested "user" params and flat params from form submissions
-      user_params = case params do
-        %{"user" => user_map} -> user_map
-        _ ->
-          # Map flat form fields to User schema fields
-          %{
-            "email" => params["email"],
-            "password" => params["password"],
-            "password_confirmation" => params["password2"],
-            "name" => params["username"]
-          }
-          |> Enum.reject(fn {_, v} -> is_nil(v) end)
-          |> Map.new()
-      end
+      user_params =
+        case params do
+          %{"user" => user_map} ->
+            user_map
+
+          _ ->
+            # Map flat form fields to User schema fields
+            %{
+              "email" => params["email"],
+              "password" => params["password"],
+              "password_confirmation" => params["password2"],
+              "name" => params["username"]
+            }
+            |> Enum.reject(fn {_, v} -> is_nil(v) end)
+            |> Map.new()
+        end
 
       case Accounts.create_user(user_params) do
         {:ok, user} ->
+          # Track successful user registration
+          :telemetry.execute([:whoknows, :user, :registration], %{count: 1}, %{})
+
           token = Accounts.generate_user_session_token(user)
+
           conn
           |> put_session(:user_token, token)
           |> put_session(:live_socket_id, "users_sessions:#{Base.url_encode64(token)}")
@@ -33,6 +40,7 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
 
         {:error, %Ecto.Changeset{} = changeset} ->
           errors = format_changeset_errors(changeset)
+
           conn
           |> put_status(:unprocessable_entity)
           |> json(%{detail: errors})
@@ -40,18 +48,45 @@ defmodule WhoknowsElixirMonolithWeb.Api.UserController do
     end
   end
 
-  def login(conn, %{"email" => email, "password" => password}) do
-    if user = Accounts.get_user_by_email_and_password(email, password) do
+  def login(conn, params) do
+    # Support both email and username for login
+    # The "username" field can contain either username or email
+    identifier = params["username"] || params["email"]
+    password = params["password"]
+
+    user = if is_binary(identifier) and is_binary(password) do
+      # Try email first (if it looks like an email), then try username
+      if String.contains?(identifier, "@") do
+        Accounts.get_user_by_email_and_password(identifier, password)
+      else
+        # Try username, if that fails, try as email anyway
+        Accounts.get_user_by_username_and_password(identifier, password) ||
+        Accounts.get_user_by_email_and_password(identifier, password)
+      end
+    else
+      nil
+    end
+
+    if user do
+      # Track successful login
+      :telemetry.execute([:whoknows, :user, :login], %{count: 1}, %{status: "success"})
+
       token = Accounts.generate_user_session_token(user)
+
       conn
       |> put_session(:user_token, token)
       |> put_session(:live_socket_id, "users_sessions:#{Base.url_encode64(token)}")
       |> put_status(:ok)
       |> json(%{statusCode: 200, message: "Login successful"})
     else
+      # Track failed login
+      :telemetry.execute([:whoknows, :user, :login], %{count: 1}, %{status: "failure"})
+
       conn
       |> put_status(:unprocessable_entity)
-      |> json(%{detail: [%{loc: ["password"], msg: "Invalid email or password", type: "value_error"}]})
+      |> json(%{
+        detail: [%{loc: ["password"], msg: "Invalid username/email or password", type: "value_error"}]
+      })
     end
   end
 

@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: whoknows_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    networks:
+      - monitoring
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whoknows_app
+    expose:
+      - "4000"
+    ports:
+      - "9568:9568"  # Prometheus metrics endpoint
+    environment:
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - PHX_HOST=${PHX_HOST:-codelab-devops.dk}
+      - PORT=4000
+      - DATABASE_PATH=/app/priv/repo/prod.db
+      - MIX_ENV=prod
+      - PHX_SERVER=true
+    volumes:
+      - app_data:/app/priv/repo
+      - ./priv/repo/migrations:/app/migrations:ro
+      - ./priv/repo/seeds.exs:/app/seeds.exs:ro
+    networks:
+      - monitoring
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/"]
+      interval: 30s
+      timeout: 3s
+      start_period: 40s
+      retries: 3
+    command: >
+      sh -c "
+        echo 'Running database migrations...' &&
+        /app/bin/whoknows_elixir_monolith eval 'WhoknowsElixirMonolith.Release.migrate()' &&
+        echo 'Running database seeds...' &&
+        /app/bin/whoknows_elixir_monolith eval 'WhoknowsElixirMonolith.Release.seed()' &&
+        echo 'Starting application...' &&
+        /app/bin/whoknows_elixir_monolith start
+      "
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.external-url=https://codelab-devops.dk/prometheus/'
+      - '--web.route-prefix=/prometheus'
+    networks:
+      - monitoring
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://codelab-devops.dk/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - monitoring
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+volumes:
+  app_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  certbot_conf:
+    driver: local
+  certbot_www:
+    driver: local
+
+networks:
+  monitoring:
+    driver: bridge
