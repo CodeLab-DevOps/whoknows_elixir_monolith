@@ -12,6 +12,7 @@ defmodule WhoknowsElixirMonolithWeb.Router do
   end
 
   pipeline :api do
+    plug WhoknowsElixirMonolithWeb.Plugs.PathNormalizer
     plug :accepts, ["json"]
     plug :fetch_session
     # plug :protect_from_forgery
